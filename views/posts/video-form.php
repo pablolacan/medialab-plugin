@@ -36,9 +36,9 @@ $categories = medialab_get_video_categories();
         
         <!-- Subtítulo (ACF) -->
         <div class="form-field required">
-            <label for="subtitulo">Subtítulo</label>
+            <label for="subtitulo">Subtítulo | Tipo de Evento</label>
             <input type="text" id="subtitulo" name="subtitulo" required maxlength="200"
-                   placeholder="Descripción corta del contenido">
+                   placeholder="Coloca acá si es Webinar, Conferencia, Taller, etc.">
         </div>
         
         <!-- Facultad (ACF) -->

@@ -18,6 +18,9 @@ class MediaLab_Gallery_Post {
         // AJAX handlers
         add_action('wp_ajax_medialab_publish_gallery', array($this, 'handle_gallery_post'));
         add_action('wp_ajax_nopriv_medialab_publish_gallery', array($this, 'handle_gallery_post'));
+
+        add_action('wp_ajax_get_attachment_data', array($this, 'get_attachment_data'));
+        add_action('wp_ajax_nopriv_get_attachment_data', array($this, 'get_attachment_data'));
     }
     
     public function add_gallery_menu() {
@@ -30,6 +33,49 @@ class MediaLab_Gallery_Post {
             'medialab-gallery',
             array($this, 'gallery_page')
         );
+    }
+
+    public function get_attachment_data() {
+        // Verificar nonce
+        if (!wp_verify_nonce($_POST['nonce'], 'medialab_nonce')) {
+            wp_send_json_error('Fallo de seguridad');
+        }
+        
+        $attachment_id = intval($_POST['attachment_id']);
+        
+        if (!$attachment_id) {
+            wp_send_json_error('ID de attachment inválido');
+        }
+        
+        $attachment = get_post($attachment_id);
+        
+        if (!$attachment || $attachment->post_type !== 'attachment') {
+            wp_send_json_error('Attachment no encontrado');
+        }
+        
+        // Construir datos del attachment similar a wp.media
+        $attachment_data = array(
+            'id' => $attachment_id,
+            'url' => wp_get_attachment_url($attachment_id),
+            'sizes' => array()
+        );
+        
+        // Obtener diferentes tamaños
+        $image_sizes = get_intermediate_image_sizes();
+        $image_sizes[] = 'full';
+        
+        foreach ($image_sizes as $size) {
+            $image = wp_get_attachment_image_src($attachment_id, $size);
+            if ($image) {
+                $attachment_data['sizes'][$size] = array(
+                    'url' => $image[0],
+                    'width' => $image[1],
+                    'height' => $image[2]
+                );
+            }
+        }
+        
+        wp_send_json_success($attachment_data);
     }
     
     public function gallery_page() {
@@ -156,7 +202,7 @@ class MediaLab_Gallery_Post {
                 'post_title'    => sanitize_text_field($data['post_title']),
                 'post_content'  => $gallery_content,
                 'post_excerpt'  => sanitize_textarea_field($data['post_excerpt']),
-                'post_status'   => 'draft',
+                'post_status'   => 'publish',
                 'post_type'     => 'post',
                 'post_author'   => get_current_user_id(),
                 'post_date'     => !empty($data['post_date']) ? $data['post_date'] : current_time('mysql')

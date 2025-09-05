@@ -31,7 +31,7 @@ $categories = medialab_get_gallery_categories();
         <div class="form-field required">
             <label for="facultad">Facultad</label>
             <input type="text" id="facultad" name="facultad" required
-                   placeholder="Ej: Ingeniería, Medicina, etc.">
+                   placeholder="Ej: FISICC, FACTI, ETC.">
         </div>
         
         <!-- Extracto del Post -->
@@ -220,6 +220,7 @@ jQuery(document).ready(function($) {
     
     // Variables globales
     let selectedImages = [];
+    let selectedImagesData = {}; // Almacenar datos completos de las imágenes
     let galleryFrame, featuredImageFrame;
     
     // Inicializar Select2 para categorías
@@ -273,6 +274,8 @@ jQuery(document).ready(function($) {
             attachments.forEach(function(attachment) {
                 if (selectedImages.indexOf(attachment.id) === -1) {
                     selectedImages.push(attachment.id);
+                    // Guardar datos completos de la imagen
+                    selectedImagesData[attachment.id] = attachment;
                 }
             });
             
@@ -285,6 +288,7 @@ jQuery(document).ready(function($) {
     // Limpiar galería
     $('#clear-gallery-images').on('click', function() {
         selectedImages = [];
+        selectedImagesData = {};
         updateGalleryPreview();
     });
     
@@ -310,34 +314,88 @@ jQuery(document).ready(function($) {
         
         var previewHtml = counterHtml;
         
-        // Crear preview de imágenes
+        // Crear preview de imágenes con datos ya disponibles
         selectedImages.forEach(function(imageId, index) {
+            var imageData = selectedImagesData[imageId];
+            var imageUrl = '';
+            
+            if (imageData) {
+                // Usar thumbnail si está disponible, sino usar la URL principal
+                if (imageData.sizes && imageData.sizes.thumbnail) {
+                    imageUrl = imageData.sizes.thumbnail.url;
+                } else if (imageData.sizes && imageData.sizes.medium) {
+                    imageUrl = imageData.sizes.medium.url;
+                } else {
+                    imageUrl = imageData.url;
+                }
+            }
+            
             previewHtml += '<div class="gallery-item" data-id="' + imageId + '">';
-            previewHtml += '<img src="" alt="Imagen ' + (index + 1) + '">';
+            
+            if (imageUrl) {
+                previewHtml += '<img src="' + imageUrl + '" alt="Imagen ' + (index + 1) + '">';
+            } else {
+                previewHtml += '<div class="loading-placeholder">Cargando...</div>';
+            }
+            
             previewHtml += '<button type="button" class="remove-image" data-id="' + imageId + '">×</button>';
             previewHtml += '</div>';
         });
         
         $preview.html(previewHtml);
         
-        // Cargar imágenes reales
-        loadGalleryImages();
+        // Si hay imágenes sin datos, cargarlas mediante AJAX
+        loadMissingImages();
         
         // Actualizar campo oculto
         $('#gallery_images').val(JSON.stringify(selectedImages));
     }
     
-    // Cargar imágenes reales para el preview
-    function loadGalleryImages() {
+    // Cargar imágenes que no tienen datos completos
+    function loadMissingImages() {
         selectedImages.forEach(function(imageId) {
-            wp.media.attachment(imageId).fetch().then(function(attachment) {
-                var imageUrl = attachment.attributes.sizes && attachment.attributes.sizes.thumbnail ? 
-                              attachment.attributes.sizes.thumbnail.url : 
-                              attachment.attributes.url;
-                
-                $('#gallery-preview .gallery-item[data-id="' + imageId + '"] img').attr('src', imageUrl);
-            });
+            if (!selectedImagesData[imageId]) {
+                // Cargar datos mediante AJAX si no están disponibles
+                $.ajax({
+                    url: medialab_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'get_attachment_data',
+                        attachment_id: imageId,
+                        nonce: medialab_ajax.nonce
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            selectedImagesData[imageId] = response.data;
+                            updateSingleImagePreview(imageId, response.data);
+                        }
+                    }
+                });
+            }
         });
+    }
+    
+    // Actualizar preview de una sola imagen
+    function updateSingleImagePreview(imageId, imageData) {
+        var imageUrl = '';
+        
+        if (imageData.sizes && imageData.sizes.thumbnail) {
+            imageUrl = imageData.sizes.thumbnail.url;
+        } else if (imageData.sizes && imageData.sizes.medium) {
+            imageUrl = imageData.sizes.medium.url;
+        } else {
+            imageUrl = imageData.url;
+        }
+        
+        var $item = $('#gallery-preview .gallery-item[data-id="' + imageId + '"]');
+        if ($item.length && imageUrl) {
+            $item.find('.loading-placeholder').remove();
+            if ($item.find('img').length === 0) {
+                $item.prepend('<img src="' + imageUrl + '" alt="Imagen">');
+            } else {
+                $item.find('img').attr('src', imageUrl);
+            }
+        }
     }
     
     // Remover imagen individual de la galería
@@ -347,6 +405,7 @@ jQuery(document).ready(function($) {
         
         if (index > -1) {
             selectedImages.splice(index, 1);
+            delete selectedImagesData[imageId];
             updateGalleryPreview();
         }
     });
@@ -402,6 +461,7 @@ jQuery(document).ready(function($) {
         if (confirm('¿Estás seguro de que quieres limpiar todo el formulario?')) {
             document.getElementById('medialab-gallery-form').reset();
             selectedImages = [];
+            selectedImagesData = {};
             updateGalleryPreview();
             $('#featured-image-preview').empty();
             $('#featured_image_id').val('');
@@ -481,6 +541,7 @@ jQuery(document).ready(function($) {
                     // Reset completo del formulario
                     $form[0].reset();
                     selectedImages = [];
+                    selectedImagesData = {};
                     updateGalleryPreview();
                     $('#featured-image-preview').empty();
                     $('#featured_image_id').val('');

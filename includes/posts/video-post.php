@@ -170,7 +170,7 @@ class MediaLab_Video_Post {
                 'post_title'    => sanitize_text_field($data['post_title']),
                 'post_content'  => '',
                 'post_excerpt'  => sanitize_textarea_field($data['post_excerpt']),
-                'post_status'   => 'draft',
+                'post_status'   => 'publish',
                 'post_type'     => 'post',
                 'post_author'   => get_current_user_id(),
                 'post_date'     => !empty($data['post_date']) ? $data['post_date'] : current_time('mysql')
