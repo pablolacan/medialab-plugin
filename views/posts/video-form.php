@@ -105,15 +105,6 @@ $categories = medialab_get_video_categories();
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('medialab_nonce'); ?>">
     </form>
     
-    <!-- Información -->
-    <div class="medialab-form" style="margin-top: 20px; background: #f9f9f9;">
-        <h3>ℹ️ Información</h3>
-        <ul style="margin: 10px 0;">
-            <li><strong>Todos los campos son obligatorios</strong></li>
-            <li><strong>Estado:</strong> Los videos se crean como borrador para revisión</li>
-            <li><strong>Categorías:</strong> Solo puedes asignar una categoría por video</li>
-        </ul>
-    </div>
 </div>
 
 <script>

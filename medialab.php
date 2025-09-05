@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: MediaLab
- * Plugin URI: https://medialab.com
+ * Plugin URI: https://medialab.galileo.edu
  * Description: Plugin central para gestionar todas las funcionalidades del MediaLab - Posts de video, galerías, graduaciones y más.
- * Version: 1.0.0
- * Author: MediaLab Team
+ * Version: 1.0.1
+ * Author: Dojo Lab
  * License: GPL v2 or later
  * Text Domain: medialab
  */
@@ -46,11 +46,13 @@ class MediaLab_Plugin {
         // Cargar módulo de video posts
         require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/video-post.php';
         
+        // Cargar módulo de gallery posts
+        require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/gallery-post.php';
+        
         // Cargar módulo de documentación
         require_once MEDIALAB_PLUGIN_PATH . 'documentation.php';
         
         // Futuro:
-        // require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/gallery-post.php';
         // require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/graduation-post.php';
     }
     
@@ -76,7 +78,7 @@ class MediaLab_Plugin {
             array($this, 'posts_page')
         );
         
-        // El submenú de video se agrega desde video-post.php
+        // Los submenús de video y gallery se agregan desde sus respectivos archivos
     }
     
     public function dashboard_page() {
@@ -112,11 +114,11 @@ class MediaLab_Plugin {
         echo '<a href="' . admin_url('admin.php?page=medialab-video') . '" class="button button-primary">Crear Video</a>';
         echo '</div>';
         
-        // Gallery Post (próximamente)
-        echo '<div class="post-type-card disabled">';
+        // Gallery Post (activo)
+        echo '<div class="post-type-card active">';
         echo '<h3>🖼️ Gallery Post</h3>';
-        echo '<p>Próximamente - Galerías de imágenes</p>';
-        echo '<button class="button" disabled>Próximamente</button>';
+        echo '<p>Crea galerías de imágenes con Gallery Block nativo</p>';
+        echo '<a href="' . admin_url('admin.php?page=medialab-gallery') . '" class="button button-primary">Crear Galería</a>';
         echo '</div>';
         
         // Graduation Post (próximamente)
@@ -163,6 +165,7 @@ class MediaLab_Plugin {
         add_option('medialab_version', MEDIALAB_VERSION);
         add_option('medialab_settings', array(
             'video_post_status' => 'draft',
+            'gallery_post_status' => 'draft',
             'enable_notifications' => true
         ));
         
