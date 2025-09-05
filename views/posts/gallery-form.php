@@ -1,10 +1,9 @@
 <?php
 /**
  * MediaLab - Gallery Post Form
- * Formulario para crear posts de galería - Solo campos esenciales
+ * Formulario para crear posts de galería
  */
 
-// Prevenir acceso directo
 if (!defined('ABSPATH')) {
     exit;
 }

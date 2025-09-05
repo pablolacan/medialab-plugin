@@ -1,0 +1,479 @@
+/**
+ * MediaLab Plugin - Main Styles
+ * Archivo principal que importa todos los módulos de estilos
+ * 
+ * Este archivo debe reemplazar el style.css existente
+ */
+
+/* ===== IMPORTAR MÓDULOS DE ESTILOS ===== */
+/* En un entorno de producción, estos se combinarían en un solo archivo */
+
+/* Reset y estilos base del plugin */
+.medialab-plugin * {
+  box-sizing: border-box;
+}
+
+/* ===== OVERRIDE DE ESTILOS DE WORDPRESS ADMIN ===== */
+/* Asegurar que nuestros estilos tengan prioridad en el admin */
+
+.wrap .medialab-wrap {
+  background: var(--ml-gray-50, #f8fafc);
+  padding: 0;
+  margin: 0 -20px;
+  min-height: calc(100vh - 32px);
+}
+
+.wrap .medialab-wrap h1 {
+  color: white;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Botones de WordPress - Override */
+.wrap .button.medialab-btn-primary {
+  background: var(--ml-primary, #2563eb) !important;
+  border-color: var(--ml-primary, #2563eb) !important;
+  color: white !important;
+  border-radius: var(--ml-radius-md, 0.5rem) !important;
+  font-weight: 500 !important;
+  padding: var(--ml-space-sm, 0.5rem) var(--ml-space-md, 1rem) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--ml-space-sm, 0.5rem) !important;
+}
+
+.wrap .button.medialab-btn-primary:hover {
+  background: var(--ml-primary-hover, #1d4ed8) !important;
+  border-color: var(--ml-primary-hover, #1d4ed8) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+.wrap .button.medialab-btn-secondary {
+  background: white !important;
+  border-color: var(--ml-gray-300, #cbd5e1) !important;
+  color: var(--ml-gray-700, #334155) !important;
+  border-radius: var(--ml-radius-md, 0.5rem) !important;
+  font-weight: 500 !important;
+  padding: var(--ml-space-sm, 0.5rem) var(--ml-space-md, 1rem) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--ml-space-sm, 0.5rem) !important;
+}
+
+.wrap .button.medialab-btn-secondary:hover {
+  background: var(--ml-gray-50, #f8fafc) !important;
+  border-color: var(--ml-gray-400, #94a3b8) !important;
+  color: var(--ml-gray-800, #1e293b) !important;
+}
+
+/* ===== NOTIFICACIONES MEJORADAS ===== */
+.medialab-notice {
+  padding: var(--ml-space-md, 1rem);
+  border-radius: var(--ml-radius-md, 0.5rem);
+  border: 1px solid;
+  margin: var(--ml-space-md, 1rem) 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ml-space-sm, 0.5rem);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.medialab-notice.success {
+  background: var(--ml-success-light, #ecfdf5);
+  border-color: var(--ml-success, #059669);
+  color: var(--ml-success-hover, #047857);
+}
+
+.medialab-notice.error {
+  background: var(--ml-error-light, #fef2f2);
+  border-color: var(--ml-error, #dc2626);
+  color: var(--ml-error-hover, #b91c1c);
+}
+
+.medialab-notice.warning {
+  background: var(--ml-warning-light, #fffbeb);
+  border-color: var(--ml-warning, #d97706);
+  color: var(--ml-warning-hover, #b45309);
+}
+
+.medialab-notice.info {
+  background: var(--ml-info-light, #f0f9ff);
+  border-color: var(--ml-info, #0891b2);
+  color: var(--ml-info-hover, #0e7490);
+}
+
+/* ===== FORMULARIOS WORDPRESS ADMIN ===== */
+.wrap .medialab-form table.form-table {
+  background: white;
+  border-radius: var(--ml-radius-lg, 0.75rem);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid var(--ml-gray-200, #e2e8f0);
+  padding: var(--ml-space-xl, 2rem);
+  margin-bottom: var(--ml-space-xl, 2rem);
+}
+
+.wrap .medialab-form .form-table th {
+  font-weight: 600;
+  color: var(--ml-gray-700, #334155);
+  font-size: 14px;
+  padding: var(--ml-space-md, 1rem) var(--ml-space-lg, 1.5rem) var(--ml-space-md, 1rem) 0;
+  width: 200px;
+  vertical-align: top;
+}
+
+.wrap .medialab-form .form-table td {
+  padding: var(--ml-space-md, 1rem) 0;
+}
+
+.wrap .medialab-form input[type="text"],
+.wrap .medialab-form input[type="url"],
+.wrap .medialab-form input[type="email"],
+.wrap .medialab-form input[type="datetime-local"],
+.wrap .medialab-form textarea,
+.wrap .medialab-form select {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--ml-space-sm, 0.5rem) var(--ml-space-md, 1rem);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ml-gray-800, #1e293b);
+  background: white;
+  border: 2px solid var(--ml-gray-200, #e2e8f0);
+  border-radius: var(--ml-radius-md, 0.5rem);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.wrap .medialab-form input[type="text"]:focus,
+.wrap .medialab-form input[type="url"]:focus,
+.wrap .medialab-form input[type="email"]:focus,
+.wrap .medialab-form input[type="datetime-local"]:focus,
+.wrap .medialab-form textarea:focus,
+.wrap .medialab-form select:focus {
+  outline: none;
+  border-color: var(--ml-primary, #2563eb);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+  background: white;
+}
+
+.wrap .medialab-form textarea {
+  min-height: 100px;
+  resize: vertical;
+  max-width: 600px;
+}
+
+.wrap .medialab-form .description {
+  color: var(--ml-gray-600, #475569);
+  font-size: 13px;
+  font-style: italic;
+  margin-top: var(--ml-space-xs, 0.25rem);
+  line-height: 1.4;
+}
+
+/* ===== COMPATIBILIDAD CON ELEMENTOS WORDPRESS ===== */
+.wrap .notice.medialab-notice {
+  margin: 15px 0;
+  padding: 12px;
+}
+
+.wrap .notice.medialab-notice.notice-success {
+  background: var(--ml-success-light, #ecfdf5);
+  border-left-color: var(--ml-success, #059669);
+  color: var(--ml-success-hover, #047857);
+}
+
+.wrap .notice.medialab-notice.notice-error {
+  background: var(--ml-error-light, #fef2f2);
+  border-left-color: var(--ml-error, #dc2626);
+  color: var(--ml-error-hover, #b91c1c);
+}
+
+.wrap .notice.medialab-notice.notice-warning {
+  background: var(--ml-warning-light, #fffbeb);
+  border-left-color: var(--ml-warning, #d97706);
+  color: var(--ml-warning-hover, #b45309);
+}
+
+.wrap .notice.medialab-notice.notice-info {
+  background: var(--ml-info-light, #f0f9ff);
+  border-left-color: var(--ml-info, #0891b2);
+  color: var(--ml-info-hover, #0e7490);
+}
+
+/* ===== LOADING STATES ===== */
+.medialab-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ml-space-sm, 0.5rem);
+}
+
+.medialab-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--ml-gray-200, #e2e8f0);
+  border-top: 2px solid var(--ml-primary, #2563eb);
+  border-radius: 50%;
+  animation: medialab-spin 0.8s linear infinite;
+}
+
+@keyframes medialab-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.medialab-skeleton {
+  background: linear-gradient(90deg, var(--ml-gray-200, #e2e8f0) 25%, var(--ml-gray-100, #f1f5f9) 50%, var(--ml-gray-200, #e2e8f0) 75%);
+  background-size: 200% 100%;
+  animation: medialab-skeleton 1.5s infinite;
+  border-radius: var(--ml-radius-sm, 0.375rem);
+}
+
+@keyframes medialab-skeleton {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== MEDIA QUERIES PARA RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .wrap .medialab-wrap {
+    margin: 0 -15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrap .medialab-wrap {
+    margin: 0 -10px;
+  }
+  
+  .wrap .medialab-form input[type="text"],
+  .wrap .medialab-form input[type="url"],
+  .wrap .medialab-form input[type="email"],
+  .wrap .medialab-form input[type="datetime-local"],
+  .wrap .medialab-form textarea,
+  .wrap .medialab-form select {
+    max-width: none;
+  }
+  
+  .wrap .medialab-form .form-table,
+  .wrap .medialab-form .form-table tbody,
+  .wrap .medialab-form .form-table tr,
+  .wrap .medialab-form .form-table td,
+  .wrap .medialab-form .form-table th {
+    display: block;
+    width: 100%;
+  }
+  
+  .wrap .medialab-form .form-table th {
+    padding-bottom: var(--ml-space-xs, 0.25rem);
+    border-bottom: none;
+  }
+  
+  .wrap .medialab-form .form-table td {
+    padding-top: 0;
+    padding-bottom: var(--ml-space-lg, 1.5rem);
+    border-bottom: 1px solid var(--ml-gray-100, #f1f5f9);
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.medialab-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.medialab-clearfix::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.medialab-float-left {
+  float: left;
+}
+
+.medialab-float-right {
+  float: right;
+}
+
+.medialab-text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.medialab-cursor-pointer {
+  cursor: pointer;
+}
+
+.medialab-cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* ===== ANIMACIONES GLOBALES ===== */
+@keyframes medialab-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes medialab-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes medialab-fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes medialab-slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes medialab-slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes medialab-scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.medialab-animate-fadeIn {
+  animation: medialab-fadeIn 0.3s ease-out;
+}
+
+.medialab-animate-fadeInUp {
+  animation: medialab-fadeInUp 0.4s ease-out;
+}
+
+.medialab-animate-fadeInDown {
+  animation: medialab-fadeInDown 0.4s ease-out;
+}
+
+.medialab-animate-slideInLeft {
+  animation: medialab-slideInLeft 0.4s ease-out;
+}
+
+.medialab-animate-slideInRight {
+  animation: medialab-slideInRight 0.4s ease-out;
+}
+
+.medialab-animate-scaleIn {
+  animation: medialab-scaleIn 0.3s ease-out;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .medialab-wrap {
+    background: white !important;
+    box-shadow: none !important;
+  }
+  
+  .medialab-btn,
+  .button {
+    display: none !important;
+  }
+  
+  .medialab-form {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* ===== ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible para mejor accesibilidad */
+.medialab-btn:focus-visible,
+.button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ml-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+/* ===== DARK MODE SUPPORT (Futuro) ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ml-gray-50: #1e293b;
+    --ml-gray-100: #334155;
+    --ml-gray-200: #475569;
+    --ml-gray-800: #f1f5f9;
+    --ml-gray-900: #f8fafc;
+  }
+  
+  /* Solo aplicar si el usuario tiene preferencia por dark mode 
+     y no hay override manual del tema */
+  .medialab-wrap {
+    color-scheme: dark;
+  }
+}
+
+/* ===== FIN DEL ARCHIVO ===== */

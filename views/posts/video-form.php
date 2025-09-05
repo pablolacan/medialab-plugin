@@ -1,10 +1,9 @@
 <?php
 /**
  * MediaLab - Video Post Form
- * Formulario para crear posts de video - TODOS los campos son obligatorios
+ * Formulario para crear posts de video
  */
 
-// Prevenir acceso directo
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -45,7 +44,7 @@ $categories = medialab_get_video_categories();
         <div class="form-field required">
             <label for="facultad">Facultad</label>
             <input type="text" id="facultad" name="facultad" required
-                   placeholder="Ej: Ingeniería, Medicina, etc.">
+                   placeholder="Ej: FISICC, FACTI, ETC.">
         </div>
         
         <!-- Extracto del Post -->
@@ -55,7 +54,7 @@ $categories = medialab_get_video_categories();
                       placeholder="Descripción detallada del video..."></textarea>
         </div>
         
-        <!-- Categoría (solo una) -->
+        <!-- Categoría  -->
         <div class="form-field required">
             <label for="post_category">Categoría</label>
             <select id="post_category" name="post_category[]" required>

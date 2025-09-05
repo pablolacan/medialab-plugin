@@ -1,0 +1,681 @@
+/**
+ * MediaLab Plugin - Form Styles
+ * Estilos para formularios y elementos de entrada
+ */
+
+/* ===== CONTENEDOR DE FORMULARIO ===== */
+.medialab-form {
+  background: white;
+  border-radius: var(--ml-radius-lg);
+  box-shadow: var(--ml-shadow-sm);
+  border: 1px solid var(--ml-gray-200);
+  padding: var(--ml-space-2xl);
+  margin-bottom: var(--ml-space-xl);
+}
+
+.medialab-form-header {
+  margin-bottom: var(--ml-space-xl);
+  padding-bottom: var(--ml-space-lg);
+  border-bottom: 1px solid var(--ml-gray-200);
+}
+
+.medialab-form-title {
+  font-size: var(--ml-text-2xl);
+  font-weight: 700;
+  margin: 0 0 var(--ml-space-sm) 0;
+  color: var(--ml-gray-800);
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-sm);
+}
+
+.medialab-form-subtitle {
+  font-size: var(--ml-text-base);
+  color: var(--ml-gray-600);
+  margin: 0;
+}
+
+/* ===== CAMPOS DE FORMULARIO ===== */
+.medialab-form-field {
+  margin-bottom: var(--ml-space-lg);
+}
+
+.medialab-form-field:last-child {
+  margin-bottom: 0;
+}
+
+.medialab-form-label {
+  display: block;
+  font-weight: 600;
+  font-size: var(--ml-text-sm);
+  color: var(--ml-gray-700);
+  margin-bottom: var(--ml-space-sm);
+  line-height: 1.4;
+}
+
+.medialab-form-label.required::after {
+  content: " *";
+  color: var(--ml-error);
+  font-weight: 700;
+}
+
+.medialab-form-help {
+  font-size: var(--ml-text-xs);
+  color: var(--ml-gray-500);
+  margin-top: var(--ml-space-xs);
+  line-height: 1.4;
+}
+
+.medialab-form-help-icon {
+  margin-right: var(--ml-space-xs);
+}
+
+/* ===== ELEMENTOS DE ENTRADA ===== */
+.medialab-input,
+.medialab-textarea,
+.medialab-select {
+  width: 100%;
+  padding: var(--ml-space-sm) var(--ml-space-md);
+  font-size: var(--ml-text-sm);
+  font-family: inherit;
+  line-height: 1.5;
+  color: var(--ml-gray-800);
+  background: white;
+  border: 2px solid var(--ml-gray-200);
+  border-radius: var(--ml-radius-md);
+  transition: var(--ml-transition);
+  box-shadow: var(--ml-shadow-sm);
+}
+
+.medialab-input:focus,
+.medialab-textarea:focus,
+.medialab-select:focus {
+  outline: none;
+  border-color: var(--ml-primary);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+  background: white;
+}
+
+.medialab-input:hover:not(:focus),
+.medialab-textarea:hover:not(:focus),
+.medialab-select:hover:not(:focus) {
+  border-color: var(--ml-gray-300);
+}
+
+/* Estados de validación */
+.medialab-input.is-valid,
+.medialab-textarea.is-valid,
+.medialab-select.is-valid {
+  border-color: var(--ml-success);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23059669'%3e%3cpath d='M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--ml-space-sm) center;
+  background-size: 16px;
+  padding-right: 2.5rem;
+}
+
+.medialab-input.is-invalid,
+.medialab-textarea.is-invalid,
+.medialab-select.is-invalid {
+  border-color: var(--ml-error);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23dc2626'%3e%3cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3e%3cpath d='M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--ml-space-sm) center;
+  background-size: 16px;
+  padding-right: 2.5rem;
+}
+
+.medialab-input:disabled,
+.medialab-textarea:disabled,
+.medialab-select:disabled {
+  background-color: var(--ml-gray-100);
+  color: var(--ml-gray-500);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Tamaños específicos */
+.medialab-input-sm,
+.medialab-textarea-sm,
+.medialab-select-sm {
+  padding: var(--ml-space-xs) var(--ml-space-sm);
+  font-size: var(--ml-text-xs);
+}
+
+.medialab-input-lg,
+.medialab-textarea-lg,
+.medialab-select-lg {
+  padding: var(--ml-space-md) var(--ml-space-lg);
+  font-size: var(--ml-text-base);
+}
+
+/* ===== TEXTAREA ESPECÍFICO ===== */
+.medialab-textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.medialab-textarea-autosize {
+  resize: none;
+  overflow: hidden;
+}
+
+/* ===== SELECT MEJORADO ===== */
+.medialab-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--ml-space-sm) center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 2.5rem;
+  appearance: none;
+}
+
+.medialab-select:focus {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* ===== CHECKBOX Y RADIO ===== */
+.medialab-checkbox,
+.medialab-radio {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--ml-gray-300);
+  background: white;
+  cursor: pointer;
+  transition: var(--ml-transition);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.medialab-checkbox {
+  border-radius: var(--ml-radius-sm);
+}
+
+.medialab-radio {
+  border-radius: 50%;
+}
+
+.medialab-checkbox:checked,
+.medialab-radio:checked {
+  background: var(--ml-primary);
+  border-color: var(--ml-primary);
+}
+
+.medialab-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 5px;
+  width: 6px;
+  height: 10px;
+  border: 2px solid white;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg);
+}
+
+.medialab-radio:checked::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.medialab-checkbox:focus,
+.medialab-radio:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+}
+
+/* Label para checkbox/radio */
+.medialab-checkbox-label,
+.medialab-radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-sm);
+  cursor: pointer;
+  font-size: var(--ml-text-sm);
+  line-height: 1.5;
+}
+
+.medialab-checkbox-label:hover .medialab-checkbox,
+.medialab-radio-label:hover .medialab-radio {
+  border-color: var(--ml-primary);
+}
+
+/* ===== ELEMENTOS DE ARCHIVO ===== */
+.medialab-file-input {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.medialab-file-input input[type="file"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.medialab-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ml-space-sm);
+  padding: var(--ml-space-sm) var(--ml-space-md);
+  background: white;
+  border: 2px dashed var(--ml-gray-300);
+  border-radius: var(--ml-radius-md);
+  color: var(--ml-gray-600);
+  font-size: var(--ml-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--ml-transition);
+  text-align: center;
+  min-height: 120px;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.medialab-file-label:hover {
+  border-color: var(--ml-primary);
+  background: var(--ml-primary-light);
+  color: var(--ml-primary);
+}
+
+.medialab-file-label.has-file {
+  border-style: solid;
+  border-color: var(--ml-success);
+  background: var(--ml-success-light);
+  color: var(--ml-success-hover);
+}
+
+/* ===== GRUPOS DE CAMPOS ===== */
+.medialab-form-group {
+  background: var(--ml-gray-50);
+  border: 1px solid var(--ml-gray-200);
+  border-radius: var(--ml-radius-md);
+  padding: var(--ml-space-lg);
+  margin-bottom: var(--ml-space-lg);
+}
+
+.medialab-form-group-title {
+  font-size: var(--ml-text-lg);
+  font-weight: 600;
+  color: var(--ml-gray-800);
+  margin: 0 0 var(--ml-space-md) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-sm);
+}
+
+.medialab-form-group-description {
+  font-size: var(--ml-text-sm);
+  color: var(--ml-gray-600);
+  margin-bottom: var(--ml-space-lg);
+}
+
+/* ===== ACCIONES DE FORMULARIO ===== */
+.medialab-form-actions {
+  display: flex;
+  gap: var(--ml-space-md);
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: var(--ml-space-lg);
+  margin-top: var(--ml-space-xl);
+  border-top: 1px solid var(--ml-gray-200);
+}
+
+.medialab-form-actions-left {
+  display: flex;
+  gap: var(--ml-space-md);
+  align-items: center;
+  flex: 1;
+}
+
+.medialab-form-actions-right {
+  display: flex;
+  gap: var(--ml-space-md);
+  align-items: center;
+}
+
+/* ===== VALIDATION FEEDBACK ===== */
+.medialab-form-feedback {
+  margin-top: var(--ml-space-xs);
+  font-size: var(--ml-text-xs);
+  line-height: 1.4;
+}
+
+.medialab-form-feedback.valid {
+  color: var(--ml-success);
+}
+
+.medialab-form-feedback.invalid {
+  color: var(--ml-error);
+}
+
+.medialab-form-feedback-icon {
+  margin-right: var(--ml-space-xs);
+}
+
+/* ===== ELEMENTOS ESPECÍFICOS DE MEDIALAB ===== */
+
+/* Gallery Preview */
+.medialab-gallery-container {
+  border: 2px dashed var(--ml-gray-300);
+  border-radius: var(--ml-radius-lg);
+  padding: var(--ml-space-lg);
+  background: var(--ml-gray-50);
+  transition: var(--ml-transition);
+  text-align: center;
+}
+
+.medialab-gallery-container:hover {
+  border-color: var(--ml-primary);
+  background: var(--ml-primary-light);
+}
+
+.medialab-gallery-container.has-images {
+  border-style: solid;
+  border-color: var(--ml-success);
+  background: var(--ml-success-light);
+}
+
+.medialab-gallery-actions {
+  display: flex;
+  gap: var(--ml-space-md);
+  justify-content: center;
+  margin-bottom: var(--ml-space-lg);
+  flex-wrap: wrap;
+}
+
+.medialab-gallery-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--ml-space-md);
+  margin-top: var(--ml-space-lg);
+}
+
+.medialab-gallery-item {
+  position: relative;
+  border: 2px solid var(--ml-success);
+  border-radius: var(--ml-radius-md);
+  overflow: hidden;
+  background: white;
+  box-shadow: var(--ml-shadow-sm);
+  transition: var(--ml-transition);
+  aspect-ratio: 1;
+}
+
+.medialab-gallery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ml-shadow-md);
+}
+
+.medialab-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.medialab-gallery-item-remove {
+  position: absolute;
+  top: var(--ml-space-xs);
+  right: var(--ml-space-xs);
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: var(--ml-text-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--ml-transition);
+  backdrop-filter: blur(4px);
+}
+
+.medialab-gallery-item-remove:hover {
+  background: var(--ml-error);
+  transform: scale(1.1);
+}
+
+.medialab-gallery-counter {
+  text-align: center;
+  padding: var(--ml-space-sm);
+  background: var(--ml-info-light);
+  color: var(--ml-info-hover);
+  border-radius: var(--ml-radius-md);
+  margin-bottom: var(--ml-space-md);
+  font-weight: 600;
+  font-size: var(--ml-text-sm);
+}
+
+.medialab-gallery-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  color: var(--ml-gray-500);
+  font-size: var(--ml-text-sm);
+  gap: var(--ml-space-sm);
+}
+
+.medialab-gallery-placeholder-icon {
+  font-size: var(--ml-text-2xl);
+  opacity: 0.5;
+}
+
+/* Featured Image */
+.medialab-featured-image-container {
+  border: 2px dashed var(--ml-gray-300);
+  border-radius: var(--ml-radius-lg);
+  padding: var(--ml-space-lg);
+  background: var(--ml-gray-50);
+  transition: var(--ml-transition);
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ml-space-md);
+}
+
+.medialab-featured-image-container:hover {
+  border-color: var(--ml-primary);
+  background: var(--ml-primary-light);
+}
+
+.medialab-featured-image-container.has-image {
+  border-style: solid;
+  border-color: var(--ml-success);
+  background: var(--ml-success-light);
+}
+
+.medialab-featured-image-preview {
+  margin-top: var(--ml-space-md);
+}
+
+.medialab-featured-image-preview img {
+  max-width: 200px;
+  height: auto;
+  border: 2px solid var(--ml-success);
+  border-radius: var(--ml-radius-md);
+  box-shadow: var(--ml-shadow-md);
+}
+
+/* Loading placeholders */
+.medialab-loading-placeholder {
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(90deg, var(--ml-gray-200) 25%, var(--ml-gray-100) 50%, var(--ml-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: medialab-loading 1.5s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ml-gray-400);
+  font-size: var(--ml-text-xs);
+  border-radius: var(--ml-radius-sm);
+}
+
+@keyframes medialab-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== SELECT2 CUSTOM STYLES ===== */
+.medialab-form .select2-container {
+  width: 100% !important;
+}
+
+.medialab-form .select2-container .select2-selection--single {
+  height: 42px !important;
+  border: 2px solid var(--ml-gray-200) !important;
+  border-radius: var(--ml-radius-md) !important;
+  background: white !important;
+  transition: var(--ml-transition);
+}
+
+.medialab-form .select2-container .select2-selection--single .select2-selection__rendered {
+  color: var(--ml-gray-800) !important;
+  line-height: 38px !important;
+  padding-left: var(--ml-space-md) !important;
+  font-size: var(--ml-text-sm) !important;
+}
+
+.medialab-form .select2-container .select2-selection--single .select2-selection__arrow {
+  height: 38px !important;
+  right: var(--ml-space-md) !important;
+}
+
+.medialab-form .select2-container--default.select2-container--focus .select2-selection--single {
+  border-color: var(--ml-primary) !important;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1) !important;
+}
+
+.medialab-form .select2-dropdown {
+  border: 2px solid var(--ml-primary) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--ml-radius-md) var(--ml-radius-md) !important;
+  box-shadow: var(--ml-shadow-lg) !important;
+}
+
+.medialab-form .select2-container--default .select2-search--dropdown .select2-search__field {
+  border: 1px solid var(--ml-gray-200) !important;
+  border-radius: var(--ml-radius-sm) !important;
+  padding: var(--ml-space-sm) var(--ml-space-md) !important;
+  font-size: var(--ml-text-sm) !important;
+}
+
+.medialab-form .select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--ml-primary) !important;
+}
+
+.medialab-form .select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: var(--ml-success) !important;
+}
+
+/* ===== RESPONSIVE FORMS ===== */
+@media (max-width: 768px) {
+  .medialab-form {
+    padding: var(--ml-space-lg);
+    margin: 0 -5px var(--ml-space-lg) -5px;
+  }
+  
+  .medialab-form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .medialab-form-actions-left,
+  .medialab-form-actions-right {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .medialab-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .medialab-gallery-preview {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--ml-space-sm);
+  }
+  
+  .medialab-gallery-actions {
+    flex-direction: column;
+  }
+  
+  .medialab-featured-image-preview img {
+    max-width: 150px;
+  }
+}
+
+/* ===== FORM VALIDATION STATES ===== */
+.medialab-form-field.has-error .medialab-input,
+.medialab-form-field.has-error .medialab-textarea,
+.medialab-form-field.has-error .medialab-select {
+  border-color: var(--ml-error);
+}
+
+.medialab-form-field.has-error .medialab-form-label {
+  color: var(--ml-error);
+}
+
+.medialab-form-field.has-success .medialab-input,
+.medialab-form-field.has-success .medialab-textarea,
+.medialab-form-field.has-success .medialab-select {
+  border-color: var(--ml-success);
+}
+
+.medialab-form-field.has-success .medialab-form-label {
+  color: var(--ml-success-hover);
+}
+
+/* ===== FORM ANIMATIONS ===== */
+.medialab-form-field {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.medialab-form-field.animate-in {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
