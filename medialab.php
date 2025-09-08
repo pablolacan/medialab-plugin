@@ -173,6 +173,7 @@ class MediaLab_Plugin {
                         
                         <div class="medialab-module-card">
                             <div class="medialab-module-header">
+                                <span class="medialab-module-icon">📖</span>
                                 <h3 class="medialab-module-title">Documentación</h3>
                             </div>
                             <div class="medialab-module-body">
