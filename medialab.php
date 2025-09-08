@@ -179,72 +179,134 @@ class MediaLab_Plugin {
     
     private function render_fallback_dashboard($stats) {
         echo '<div class="wrap">';
+        echo '<div class="medialab-wrap">';
+        echo '<div class="medialab-header">';
         echo '<h1>🎬 MediaLab Dashboard</h1>';
-        echo '<div class="medialab-dashboard">';
-        echo '<p>Bienvenido al panel central de MediaLab</p>';
+        echo '<p class="description">Bienvenido al panel central de MediaLab</p>';
+        echo '</div>';
+        echo '<div class="medialab-content">';
         
         if ($stats) {
             echo '<div class="medialab-stats">';
-            echo '<div class="stat-item">📹 Videos: ' . $stats['video_posts'] . '</div>';
-            echo '<div class="stat-item">🖼️ Galerías: ' . $stats['gallery_posts'] . '</div>';
-            echo '<div class="stat-item">📝 Total Posts: ' . $stats['total_posts'] . '</div>';
+            echo '<div class="medialab-stat-card">';
+            echo '<div class="medialab-stat-icon">📹</div>';
+            echo '<div class="medialab-stat-number">' . $stats['video_posts'] . '</div>';
+            echo '<div class="medialab-stat-label">Videos</div>';
+            echo '</div>';
+            echo '<div class="medialab-stat-card">';
+            echo '<div class="medialab-stat-icon">🖼️</div>';
+            echo '<div class="medialab-stat-number">' . $stats['gallery_posts'] . '</div>';
+            echo '<div class="medialab-stat-label">Galerías</div>';
+            echo '</div>';
+            echo '<div class="medialab-stat-card">';
+            echo '<div class="medialab-stat-icon">📝</div>';
+            echo '<div class="medialab-stat-number">' . $stats['total_posts'] . '</div>';
+            echo '<div class="medialab-stat-label">Total Posts</div>';
+            echo '</div>';
             echo '</div>';
         }
         
         // Cards de módulos
-        echo '<div class="medialab-modules">';
-        echo '<div class="module-card">';
-        echo '<h3>📹 Posts</h3>';
-        echo '<p>Gestiona posts de video, galerías y graduaciones</p>';
-        echo '<a href="' . admin_url('admin.php?page=medialab-posts') . '" class="button button-primary">Ir a Posts</a>';
+        echo '<div class="medialab-modules-grid">';
+        echo '<div class="medialab-module-card">';
+        echo '<div class="medialab-module-header">';
+        echo '<span class="medialab-module-icon">📹</span>';
+        echo '<h3 class="medialab-module-title">Posts</h3>';
+        echo '</div>';
+        echo '<div class="medialab-module-body">';
+        echo '<p class="medialab-module-description">Gestiona posts de video, galerías y graduaciones</p>';
+        echo '</div>';
+        echo '<div class="medialab-module-footer">';
+        echo '<a href="' . admin_url('admin.php?page=medialab-posts') . '" class="medialab-btn medialab-btn-primary">Ir a Posts</a>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
     
     private function render_fallback_posts() {
         echo '<div class="wrap">';
+        echo '<div class="medialab-wrap">';
+        echo '<div class="medialab-header">';
         echo '<h1>📹 MediaLab Posts</h1>';
-        echo '<p>Selecciona el tipo de post que quieres crear:</p>';
+        echo '<p class="description">Selecciona el tipo de post que quieres crear</p>';
+        echo '</div>';
+        echo '<div class="medialab-content">';
         
-        echo '<div class="medialab-post-types">';
+        echo '<div class="medialab-modules-grid">';
         
         // Video Post (activo)
-        echo '<div class="post-type-card active">';
-        echo '<h3>🎥 Video Post</h3>';
-        echo '<p>Publica videos con información detallada</p>';
-        echo '<a href="' . admin_url('admin.php?page=medialab-video') . '" class="button button-primary">Crear Video</a>';
+        echo '<div class="medialab-module-card">';
+        echo '<div class="medialab-module-header">';
+        echo '<span class="medialab-module-icon">🎥</span>';
+        echo '<h3 class="medialab-module-title">Video Post</h3>';
+        echo '</div>';
+        echo '<div class="medialab-module-body">';
+        echo '<p class="medialab-module-description">Publica videos con información detallada</p>';
+        echo '</div>';
+        echo '<div class="medialab-module-footer">';
+        echo '<a href="' . admin_url('admin.php?page=medialab-video') . '" class="medialab-btn medialab-btn-primary">Crear Video</a>';
+        echo '</div>';
         echo '</div>';
         
         // Gallery Post (activo)
-        echo '<div class="post-type-card active">';
-        echo '<h3>🖼️ Gallery Post</h3>';
-        echo '<p>Crea galerías de imágenes con Gallery Block nativo</p>';
-        echo '<a href="' . admin_url('admin.php?page=medialab-gallery') . '" class="button button-primary">Crear Galería</a>';
+        echo '<div class="medialab-module-card">';
+        echo '<div class="medialab-module-header">';
+        echo '<span class="medialab-module-icon">🖼️</span>';
+        echo '<h3 class="medialab-module-title">Gallery Post</h3>';
+        echo '</div>';
+        echo '<div class="medialab-module-body">';
+        echo '<p class="medialab-module-description">Crea galerías de imágenes con Gallery Block nativo</p>';
+        echo '</div>';
+        echo '<div class="medialab-module-footer">';
+        echo '<a href="' . admin_url('admin.php?page=medialab-gallery') . '" class="medialab-btn medialab-btn-primary">Crear Galería</a>';
+        echo '</div>';
         echo '</div>';
         
         // Graduation Post (próximamente)
-        echo '<div class="post-type-card disabled">';
-        echo '<h3>🎓 Graduation Post</h3>';
-        echo '<p>Próximamente - Posts de graduación</p>';
-        echo '<button class="button" disabled>Próximamente</button>';
+        echo '<div class="medialab-module-card disabled">';
+        echo '<div class="medialab-module-header">';
+        echo '<span class="medialab-module-icon">🎓</span>';
+        echo '<h3 class="medialab-module-title">Graduation Post</h3>';
+        echo '</div>';
+        echo '<div class="medialab-module-body">';
+        echo '<p class="medialab-module-description">Próximamente - Posts de graduación</p>';
+        echo '</div>';
+        echo '<div class="medialab-module-footer">';
+        echo '<button class="medialab-btn" disabled>Próximamente</button>';
+        echo '</div>';
         echo '</div>';
         
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
     
     public function enqueue_admin_scripts($hook) {
-        // Solo cargar en páginas de MediaLab
-        if (strpos($hook, 'medialab') === false) {
+        // ===== PROBLEMA 1: DETECCIÓN INCORRECTA DE PÁGINAS =====
+        // Verificar si estamos en una página de MediaLab de forma más precisa
+        $medialab_pages = array(
+            'toplevel_page_medialab',           // Dashboard principal
+            'medialab_page_medialab-posts',     // Posts page
+            'medialab_page_medialab-video',     // Video form
+            'medialab_page_medialab-gallery',   // Gallery form
+            'medialab_page_medialab-docs',      // Documentación principal
+            'medialab_page_medialab-docs-general',
+            'medialab_page_medialab-docs-videos',
+            'medialab_page_medialab-docs-gallery'
+        );
+        
+        // Si no es una página de MediaLab, salir
+        if (!in_array($hook, $medialab_pages)) {
             return;
         }
         
-        // ===== ESTILOS MODULARES =====
-        
-        // 1. Core styles (variables CSS, base, botones, alertas) - SIEMPRE se carga
+        // ===== PROBLEMA 2: ORDEN INCORRECTO DE CARGA =====
+        // Cargar SIEMPRE core.css primero
         wp_enqueue_style(
             'medialab-core',
             MEDIALAB_PLUGIN_URL . 'assets/css/core.css',
@@ -252,32 +314,35 @@ class MediaLab_Plugin {
             MEDIALAB_VERSION
         );
         
-        // 2. Form styles - Para páginas con formularios
-        if (strpos($hook, 'medialab-video') !== false || 
-            strpos($hook, 'medialab-gallery') !== false || 
-            strpos($hook, 'medialab-graduation') !== false) {
-            
-            wp_enqueue_style(
-                'medialab-forms',
-                MEDIALAB_PLUGIN_URL . 'assets/css/forms.css',
-                array('medialab-core'),
-                MEDIALAB_VERSION
-            );
-        }
+        // Variables CSS dinámicas - AGREGAR ESTO QUE FALTABA
+        $this->add_dynamic_css();
         
-        // 3. Dashboard styles - Para páginas principales
-        if (strpos($hook, 'toplevel_page_medialab') !== false || 
-            strpos($hook, 'medialab-posts') !== false) {
-            
+        // ===== PROBLEMA 3: DEPENDENCIAS ESPECÍFICAS MEJORADAS =====
+        $dependencies = array('medialab-core');
+        
+        // Dashboard styles
+        if ($hook === 'toplevel_page_medialab' || $hook === 'medialab_page_medialab-posts') {
             wp_enqueue_style(
                 'medialab-dashboard',
                 MEDIALAB_PLUGIN_URL . 'assets/css/dashboard.css',
                 array('medialab-core'),
                 MEDIALAB_VERSION
             );
+            $dependencies[] = 'medialab-dashboard';
         }
         
-        // 4. Documentation styles - Solo para páginas de documentación
+        // Form styles
+        if (in_array($hook, array('medialab_page_medialab-video', 'medialab_page_medialab-gallery'))) {
+            wp_enqueue_style(
+                'medialab-forms',
+                MEDIALAB_PLUGIN_URL . 'assets/css/forms.css',
+                array('medialab-core'),
+                MEDIALAB_VERSION
+            );
+            $dependencies[] = 'medialab-forms';
+        }
+        
+        // Documentation styles
         if (strpos($hook, 'medialab-docs') !== false) {
             wp_enqueue_style(
                 'medialab-docs',
@@ -285,27 +350,10 @@ class MediaLab_Plugin {
                 array('medialab-core'),
                 MEDIALAB_VERSION
             );
-        }
-        
-        // 5. Main overrides - SIEMPRE al final para overrides de WordPress
-        $dependencies = array('medialab-core');
-        
-        // Agregar dependencias según la página
-        if (strpos($hook, 'medialab-video') !== false || 
-            strpos($hook, 'medialab-gallery') !== false || 
-            strpos($hook, 'medialab-graduation') !== false) {
-            $dependencies[] = 'medialab-forms';
-        }
-        
-        if (strpos($hook, 'toplevel_page_medialab') !== false || 
-            strpos($hook, 'medialab-posts') !== false) {
-            $dependencies[] = 'medialab-dashboard';
-        }
-        
-        if (strpos($hook, 'medialab-docs') !== false) {
             $dependencies[] = 'medialab-docs';
         }
         
+        // ===== PROBLEMA 4: MAIN.CSS DEBE CARGAR ÚLTIMO =====
         wp_enqueue_style(
             'medialab-main',
             MEDIALAB_PLUGIN_URL . 'assets/css/main.css',
@@ -314,8 +362,6 @@ class MediaLab_Plugin {
         );
         
         // ===== SCRIPTS =====
-        
-        // Script principal
         wp_enqueue_script(
             'medialab-admin-script',
             MEDIALAB_PLUGIN_URL . 'assets/js/admin.js',
@@ -325,13 +371,9 @@ class MediaLab_Plugin {
         );
         
         // Scripts específicos para formularios
-        if (strpos($hook, 'medialab-video') !== false || 
-            strpos($hook, 'medialab-gallery') !== false) {
-            
-            // Media Library (para selección de imágenes)
+        if (in_array($hook, array('medialab_page_medialab-video', 'medialab_page_medialab-gallery'))) {
             wp_enqueue_media();
             
-            // Select2 para categorías
             wp_enqueue_script(
                 'select2',
                 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js',
@@ -353,6 +395,102 @@ class MediaLab_Plugin {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('medialab_nonce')
         ));
+    }
+    
+    /**
+     * ===== PROBLEMA 5: FALTABAN VARIABLES CSS DINÁMICAS =====
+     * Agregar CSS dinámico con variables personalizadas
+     */
+    private function add_dynamic_css() {
+        $primary_color = get_option('medialab_primary_color', '#2563eb');
+        $secondary_color = get_option('medialab_secondary_color', '#64748b');
+        
+        $custom_css = "
+        :root {
+            --ml-primary: {$primary_color};
+            --ml-primary-hover: " . $this->darken_color($primary_color, 10) . ";
+            --ml-primary-light: " . $this->lighten_color($primary_color, 85) . ";
+            
+            --ml-secondary: {$secondary_color};
+            --ml-secondary-hover: " . $this->darken_color($secondary_color, 10) . ";
+            --ml-secondary-light: " . $this->lighten_color($secondary_color, 85) . ";
+        }
+        
+        /* ===== PROBLEMA 6: FORZAR APLICACIÓN DE ESTILOS EN ADMIN ===== */
+        .wrap .medialab-wrap {
+            background: var(--ml-gray-50, #f8fafc) !important;
+            padding: 0 !important;
+            margin: 0 -20px !important;
+            min-height: calc(100vh - 32px) !important;
+        }
+        
+        .wrap .medialab-form {
+            background: white !important;
+            border-radius: var(--ml-radius-lg, 0.75rem) !important;
+            box-shadow: var(--ml-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)) !important;
+            border: 1px solid var(--ml-gray-200, #e2e8f0) !important;
+            padding: var(--ml-space-2xl, 3rem) !important;
+            margin-bottom: var(--ml-space-xl, 2rem) !important;
+        }
+        
+        .wrap .medialab-form .form-field {
+            margin-bottom: var(--ml-space-lg, 1.5rem) !important;
+        }
+        
+        .wrap .medialab-form label {
+            display: block !important;
+            font-weight: 600 !important;
+            font-size: var(--ml-text-sm, 0.875rem) !important;
+            color: var(--ml-gray-700, #334155) !important;
+            margin-bottom: var(--ml-space-sm, 0.5rem) !important;
+        }
+        
+        .wrap .medialab-form input[type='text'],
+        .wrap .medialab-form input[type='url'],
+        .wrap .medialab-form input[type='email'],
+        .wrap .medialab-form input[type='datetime-local'],
+        .wrap .medialab-form textarea,
+        .wrap .medialab-form select {
+            width: 100% !important;
+            padding: var(--ml-space-sm, 0.5rem) var(--ml-space-md, 1rem) !important;
+            font-size: var(--ml-text-sm, 0.875rem) !important;
+            line-height: 1.5 !important;
+            color: var(--ml-gray-800, #1e293b) !important;
+            background: white !important;
+            border: 2px solid var(--ml-gray-200, #e2e8f0) !important;
+            border-radius: var(--ml-radius-md, 0.5rem) !important;
+            transition: all 0.2s ease !important;
+            box-shadow: var(--ml-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)) !important;
+        }
+        
+        .wrap .medialab-form input:focus,
+        .wrap .medialab-form textarea:focus,
+        .wrap .medialab-form select:focus {
+            outline: none !important;
+            border-color: var(--ml-primary, #2563eb) !important;
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1) !important;
+        }
+        
+        .wrap .button.button-primary {
+            background: var(--ml-primary, #2563eb) !important;
+            border-color: var(--ml-primary, #2563eb) !important;
+            color: white !important;
+            border-radius: var(--ml-radius-md, 0.5rem) !important;
+            font-weight: 500 !important;
+            padding: var(--ml-space-sm, 0.5rem) var(--ml-space-lg, 1.5rem) !important;
+            transition: all 0.2s ease !important;
+            box-shadow: var(--ml-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)) !important;
+        }
+        
+        .wrap .button.button-primary:hover {
+            background: var(--ml-primary-hover, #1d4ed8) !important;
+            border-color: var(--ml-primary-hover, #1d4ed8) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: var(--ml-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1)) !important;
+        }
+        ";
+        
+        wp_add_inline_style('medialab-core', $custom_css);
     }
     
     /**
