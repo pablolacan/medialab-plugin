@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MediaLab
  * Description: Plugin minimal para gestionar posts de video y galerías del MediaLab
- * Version: 1.0.0
+ * Version: 0.4.1
  * Author: Dojo Lab
  */
 
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Constantes básicas
-define('MEDIALAB_VERSION', '1.0.0');
+define('MEDIALAB_VERSION', '0.4.1');
 define('MEDIALAB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MEDIALAB_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -38,11 +38,11 @@ class MediaLab_Plugin {
     private function load_modules() {
         require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/video-post.php';
         require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/gallery-post.php';
-        require_once MEDIALAB_PLUGIN_PATH . 'documentation.php';
+        require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/graduation-post.php';
     }
     
     public function add_admin_menu() {
-        // Menú principal
+        // Menú principal - Dashboard de bienvenida
         add_menu_page(
             'MediaLab',
             'MediaLab',
@@ -53,14 +53,32 @@ class MediaLab_Plugin {
             25
         );
         
-        // Submenú Posts
+        // Submenús directos a cada tipo de post
         add_submenu_page(
             'medialab',
-            'MediaLab - Posts',
-            'Posts',
+            'MediaLab - Video Post',
+            'Video Post',
             'publish_posts',
-            'medialab-posts',
-            array($this, 'posts_page')
+            'medialab-video',
+            array($this, 'video_page')
+        );
+        
+        add_submenu_page(
+            'medialab',
+            'MediaLab - Gallery Post',
+            'Gallery Post',
+            'publish_posts',
+            'medialab-gallery',
+            array($this, 'gallery_page')
+        );
+        
+        add_submenu_page(
+            'medialab',
+            'MediaLab - Graduation Post',
+            'Graduation Post',
+            'publish_posts',
+            'medialab-graduation',
+            array($this, 'graduation_page')
         );
     }
     
@@ -68,199 +86,175 @@ class MediaLab_Plugin {
         // Solo cargar en páginas de MediaLab
         $medialab_pages = array(
             'toplevel_page_medialab',           
-            'medialab_page_medialab-posts',     
             'medialab_page_medialab-video',     
-            'medialab_page_medialab-gallery',   
-            'medialab_page_medialab-docs',      
-            'medialab_page_medialab-docs-general',
-            'medialab_page_medialab-docs-videos',
-            'medialab_page_medialab-docs-gallery'
+            'medialab_page_medialab-gallery',
+            'medialab_page_medialab-graduation'
         );
         
         if (!in_array($hook, $medialab_pages)) {
             return;
         }
         
-        // CSS minimal
-        wp_enqueue_style(
-            'medialab-styles',
-            MEDIALAB_PLUGIN_URL . 'assets/css/styles.css',
-            array(),
-            MEDIALAB_VERSION
-        );
-        
-        // JS básico
-        wp_enqueue_script(
-            'medialab-admin',
-            MEDIALAB_PLUGIN_URL . 'assets/js/admin.js',
-            array('jquery'),
-            MEDIALAB_VERSION,
-            true
-        );
-        
-        // Para formularios
-        if (in_array($hook, array('medialab_page_medialab-video', 'medialab_page_medialab-gallery'))) {
+        // JS básico para formularios
+        if (in_array($hook, array('medialab_page_medialab-video', 'medialab_page_medialab-gallery', 'medialab_page_medialab-graduation'))) {
             wp_enqueue_media();
             
             wp_enqueue_script('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js', array('jquery'), '4.0.13', true);
             wp_enqueue_style('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css', array(), '4.0.13');
+            
+            // AJAX
+            wp_enqueue_script('medialab-admin', MEDIALAB_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), MEDIALAB_VERSION, true);
+            wp_localize_script('medialab-admin', 'medialab_ajax', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('medialab_nonce')
+            ));
         }
-        
-        // AJAX
-        wp_localize_script('medialab-admin', 'medialab_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('medialab_nonce')
-        ));
     }
     
     public function dashboard_page() {
-        $stats = $this->get_stats();
         ?>
         <div class="wrap">
-            <div class="medialab-wrap">
-                <div class="medialab-header">
-                    <h1>🎬 MediaLab Dashboard</h1>
-                    <p class="description">Panel central para gestionar contenido del MediaLab</p>
-                </div>
+            <h1>Bienvenido a MediaLab</h1>
+            <p class="description">Plugin para gestionar contenido multimedia del MediaLab - Versión 0.4.1 (En pruebas)</p>
+            
+            <div class="card-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
                 
-                <div class="medialab-content">
-                    <!-- Stats -->
-                    <div class="medialab-stats">
-                        <div class="medialab-stat-card">
-                            <div class="medialab-stat-icon">🎥</div>
-                            <div class="medialab-stat-number"><?php echo $stats['videos']; ?></div>
-                            <div class="medialab-stat-label">Videos</div>
-                        </div>
-                        <div class="medialab-stat-card">
-                            <div class="medialab-stat-icon">🖼️</div>
-                            <div class="medialab-stat-number"><?php echo $stats['galleries']; ?></div>
-                            <div class="medialab-stat-label">Galerías</div>
-                        </div>
-                        <div class="medialab-stat-card">
-                            <div class="medialab-stat-icon">📝</div>
-                            <div class="medialab-stat-number"><?php echo $stats['total']; ?></div>
-                            <div class="medialab-stat-label">Total</div>
-                        </div>
+                <!-- Video Post Card -->
+                <div class="card">
+                    <h2 class="title">🎥 Video Post</h2>
+                    <p>Publica webinars, conferencias, seminarios y eventos en video.</p>
+                    
+                    <div class="card-content">
+                        <h4>Perfecto para:</h4>
+                        <ul>
+                            <li>Webinars y conferencias virtuales</li>
+                            <li>Clases magistrales grabadas</li>
+                            <li>Seminarios y talleres</li>
+                            <li>Videos de YouTube, Vimeo o Facebook</li>
+                        </ul>
                     </div>
                     
-                    <!-- Módulos -->
-                    <div class="medialab-modules-grid">
-                        <div class="medialab-module-card">
-                            <div class="medialab-module-header">
-                                <span class="medialab-module-icon">🎥</span>
-                                <h3 class="medialab-module-title">Video Posts</h3>
-                            </div>
-                            <div class="medialab-module-body">
-                                <p class="medialab-module-description">Crear posts de video con enlaces de YouTube, Vimeo, etc.</p>
-                            </div>
-                            <div class="medialab-module-footer">
-                                <a href="<?php echo admin_url('admin.php?page=medialab-video'); ?>" class="button button-primary">Crear Video</a>
-                            </div>
-                        </div>
-                        
-                        <div class="medialab-module-card">
-                            <div class="medialab-module-header">
-                                <span class="medialab-module-icon">🖼️</span>
-                                <h3 class="medialab-module-title">Gallery Posts</h3>
-                            </div>
-                            <div class="medialab-module-body">
-                                <p class="medialab-module-description">Crear galerías de fotos para eventos y ceremonias.</p>
-                            </div>
-                            <div class="medialab-module-footer">
-                                <a href="<?php echo admin_url('admin.php?page=medialab-gallery'); ?>" class="button button-primary">Crear Galería</a>
-                            </div>
-                        </div>
-                        
-                        <div class="medialab-module-card">
-                            <div class="medialab-module-header">
-                                <span class="medialab-module-icon">📖</span>
-                                <h3 class="medialab-module-title">Documentación</h3>
-                            </div>
-                            <div class="medialab-module-body">
-                                <p class="medialab-module-description">Guías y tutoriales para usar MediaLab correctamente.</p>
-                            </div>
-                            <div class="medialab-module-footer">
-                                <a href="<?php echo admin_url('admin.php?page=medialab-docs'); ?>" class="button button-secondary">Ver Docs</a>
-                            </div>
-                        </div>
+                    <div class="card-actions">
+                        <a href="<?php echo admin_url('admin.php?page=medialab-video'); ?>" 
+                           class="button button-primary button-large">
+                            Crear Video Post
+                        </a>
                     </div>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
-    
-    public function posts_page() {
-        ?>
-        <div class="wrap">
-            <div class="medialab-wrap">
-                <div class="medialab-header">
-                    <h1>📝 MediaLab Posts</h1>
-                    <p class="description">Selecciona el tipo de post que quieres crear</p>
                 </div>
                 
-                <div class="medialab-content">
-                    <div class="medialab-modules-grid">
-                        <div class="medialab-module-card">
-                            <div class="medialab-module-header">
-                                <span class="medialab-module-icon">🎥</span>
-                                <h3 class="medialab-module-title">Video Post</h3>
-                            </div>
-                            <div class="medialab-module-body">
-                                <p class="medialab-module-description">Para webinars, conferencias, seminarios, etc.</p>
-                            </div>
-                            <div class="medialab-module-footer">
-                                <a href="<?php echo admin_url('admin.php?page=medialab-video'); ?>" class="button button-primary">Crear Video</a>
-                            </div>
-                        </div>
-                        
-                        <div class="medialab-module-card">
-                            <div class="medialab-module-header">
-                                <span class="medialab-module-icon">🖼️</span>
-                                <h3 class="medialab-module-title">Gallery Post</h3>
-                            </div>
-                            <div class="medialab-module-body">
-                                <p class="medialab-module-description">Para eventos, ceremonias, graduaciones, etc.</p>
-                            </div>
-                            <div class="medialab-module-footer">
-                                <a href="<?php echo admin_url('admin.php?page=medialab-gallery'); ?>" class="button button-primary">Crear Galería</a>
-                            </div>
-                        </div>
+                <!-- Gallery Post Card -->
+                <div class="card">
+                    <h2 class="title">🖼️ Gallery Post</h2>
+                    <p>Documenta eventos presenciales con galerías de fotos.</p>
+                    
+                    <div class="card-content">
+                        <h4>Perfecto para:</h4>
+                        <ul>
+                            <li>Eventos presenciales documentados</li>
+                            <li>Inauguraciones y actos protocolarios</li>
+                            <li>Actividades con múltiples fotos</li>
+                            <li>Cualquier evento sin video principal</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <a href="<?php echo admin_url('admin.php?page=medialab-gallery'); ?>" 
+                           class="button button-primary button-large">
+                            Crear Gallery Post
+                        </a>
                     </div>
                 </div>
+                
+                <!-- Graduation Post Card -->
+                <div class="card" style="border-left: 4px solid #d4a574;">
+                    <h2 class="title">🎓 Graduation Post</h2>
+                    <p>Contenido especial para ceremonias de graduación.</p>
+                    
+                    <div class="card-content">
+                        <h4>Específico para:</h4>
+                        <ul>
+                            <li>Ceremonias de graduación completas</li>
+                            <li>Video de ceremonia + galería de fotos</li>
+                            <li>Solo video o solo fotos de graduación</li>
+                            <li>Categorización automática</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <a href="<?php echo admin_url('admin.php?page=medialab-graduation'); ?>" 
+                           class="button button-primary button-large" 
+                           style="background: #d4a574; border-color: #d4a574; box-shadow: 0 1px 0 #b8935f;">
+                            Crear Graduation Post
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Tips importantes -->
+            <div class="postbox" style="margin-top: 40px;">
+                <div class="postbox-header">
+                    <h2>💡 Tips Importantes</h2>
+                </div>
+                <div class="inside">
+                    <div class="notice-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                        
+                        <div class="notice notice-info inline" style="margin: 0;">
+                            <p><strong>📸 Imágenes optimizadas:</strong><br>
+                            Máximo 2MB y 1500px por lado. Usa TinyPNG para comprimir.</p>
+                        </div>
+                        
+                        <div class="notice notice-warning inline" style="margin: 0;">
+                            <p><strong>📅 Fechas correctas:</strong><br>
+                            Siempre usa la fecha del evento, no la de publicación.</p>
+                        </div>
+                        
+                        <div class="notice notice-success inline" style="margin: 0;">
+                            <p><strong>🏫 Nombres de facultad:</strong><br>
+                            Usa nombres cortos: FISICC, FACTI, Medicina, etc.</p>
+                        </div>
+                        
+                        <div class="notice inline" style="margin: 0; background: #f8f4ff; border-left-color: #9c27b0;">
+                            <p><strong>🎓 Para graduaciones:</strong><br>
+                            Siempre usa Graduation Post, aunque solo tengas video o fotos.</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer info -->
+            <div class="notice notice-info" style="margin-top: 30px; background: #f0f6fc; border-left-color: #0073aa;">
+                <p><strong>ℹ️ Versión 0.4.1 - En pruebas:</strong> 
+                Esta versión está siendo probada. Reporta cualquier problema o sugerencia al equipo de desarrollo.</p>
             </div>
         </div>
         <?php
     }
     
-    private function get_stats() {
-        // Stats básicas usando meta queries
-        $video_count = new WP_Query(array(
-            'post_type' => 'post',
-            'meta_query' => array(array('key' => 'link', 'compare' => 'EXISTS')),
-            'posts_per_page' => -1,
-            'fields' => 'ids'
-        ));
-        
-        $gallery_count = new WP_Query(array(
-            'post_type' => 'post',
-            'meta_query' => array(
-                array('key' => 'link', 'compare' => 'NOT EXISTS'),
-                array('key' => 'facultad', 'compare' => 'EXISTS')
-            ),
-            'posts_per_page' => -1,
-            'fields' => 'ids'
-        ));
-        
-        return array(
-            'videos' => $video_count->found_posts,
-            'galleries' => $gallery_count->found_posts,
-            'total' => $video_count->found_posts + $gallery_count->found_posts
-        );
+    public function video_page() {
+        include MEDIALAB_PLUGIN_PATH . 'views/posts/video-form.php';
+    }
+    
+    public function gallery_page() {
+        include MEDIALAB_PLUGIN_PATH . 'views/posts/gallery-form.php';
+    }
+    
+    public function graduation_page() {
+        include MEDIALAB_PLUGIN_PATH . 'views/posts/graduation-form.php';
     }
     
     public function acf_missing_notice() {
-        echo '<div class="notice notice-error"><p><strong>MediaLab:</strong> Este plugin requiere Advanced Custom Fields (ACF) para funcionar.</p></div>';
+        ?>
+        <div class="notice notice-error">
+            <p>
+                <strong>MediaLab:</strong> Este plugin requiere Advanced Custom Fields (ACF) para funcionar correctamente.
+                <a href="<?php echo admin_url('plugin-install.php?s=advanced+custom+fields&tab=search&type=term'); ?>" class="button button-secondary">
+                    Instalar ACF
+                </a>
+            </p>
+        </div>
+        <?php
     }
 }
 
