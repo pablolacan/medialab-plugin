@@ -31,7 +31,7 @@ class MediaLab_Documentation {
         add_submenu_page(
             'medialab',
             'MediaLab - Documentación',
-            '📖 Documentación',
+            'Documentación',
             'read',
             'medialab-docs',
             array($this, 'documentation_page')
