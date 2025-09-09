@@ -6,7 +6,7 @@
  * Version: 0.5.2
  * Requires at least: 6.8
  * Tested up to: 6.8.1
- * Requires PHP: 8.2
+ * Requires PHP: 8.1
  * Author: Equipo de Medialab
  * Author URI: https://medialab.galileo.edu
  * License: GPL v2 or later
