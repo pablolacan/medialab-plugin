@@ -1,7 +1,7 @@
 <?php
 /**
- * MediaLab - Graduation Post Module
- * Maneja la lógica híbrida de posts de graduación (Video + Gallery + Tags)
+ * MediaLab - Graduation Post Module (Actualizado con Material Pendiente)
+ * Maneja la lógica híbrida de posts de graduación (Video + Gallery + Tags) + Estado Material
  */
 
 // Prevenir acceso directo
@@ -18,6 +18,9 @@ class MediaLab_Graduation_Post {
         // AJAX handlers
         add_action('wp_ajax_medialab_publish_graduation', array($this, 'handle_graduation_post'));
         add_action('wp_ajax_nopriv_medialab_publish_graduation', array($this, 'handle_graduation_post'));
+        
+        // Hook para detectar estado automáticamente
+        add_action('acf/save_post', array($this, 'auto_detect_material_status'), 20);
     }
     
     public function add_graduation_menu() {
@@ -45,7 +48,7 @@ class MediaLab_Graduation_Post {
             return;
         }
         
-        // Campos ACF para Graduation Post (combinando video y gallery)
+        // Campos ACF para Graduation Post (combinando video, gallery y material pendiente)
         acf_add_local_field_group(array(
             'key' => 'group_medialab_graduation',
             'title' => 'MediaLab - Graduation Post',
@@ -55,7 +58,7 @@ class MediaLab_Graduation_Post {
                     'label' => 'Link del Video',
                     'name' => 'link',
                     'type' => 'url',
-                    'required' => 0, // Opcional para graduaciones
+                    'required' => 0,
                     'placeholder' => 'https://youtube.com/watch?v=...'
                 ),
                 array(
@@ -78,8 +81,75 @@ class MediaLab_Graduation_Post {
                     'key' => 'field_graduation_gallery_images',
                     'label' => 'Galería de Imágenes',
                     'name' => 'gallery_images',
-                    'type' => 'text', // Almacenamos como JSON
-                    'required' => 0 // Opcional
+                    'type' => 'text',
+                    'required' => 0
+                ),
+                // NUEVOS CAMPOS PARA MATERIAL PENDIENTE
+                array(
+                    'key' => 'field_graduation_estado_material',
+                    'label' => 'Estado del Material',
+                    'name' => 'estado_material',
+                    'type' => 'select',
+                    'required' => 0,
+                    'choices' => array(
+                        'completo' => '✅ Completo (Video + Fotos)',
+                        'solo_video' => '🎥 Solo Video (Faltan Fotos)',
+                        'solo_fotos' => '📷 Solo Fotos (Falta Video)',
+                        'pendiente_todo' => '⏳ Pendiente Todo'
+                    ),
+                    'default_value' => 'pendiente_todo',
+                    'return_format' => 'value',
+                    'instructions' => 'Se actualiza automáticamente según el contenido subido'
+                ),
+                array(
+                    'key' => 'field_graduation_responsable_video',
+                    'label' => 'Responsable Video',
+                    'name' => 'responsable_video',
+                    'type' => 'user',
+                    'required' => 0,
+                    'instructions' => 'Usuario encargado de subir/completar el video',
+                    'return_format' => 'object',
+                    'conditional_logic' => array(
+                        array(
+                            array(
+                                'field' => 'field_graduation_estado_material',
+                                'operator' => '==',
+                                'value' => 'solo_fotos'
+                            ),
+                        ),
+                        array(
+                            array(
+                                'field' => 'field_graduation_estado_material',
+                                'operator' => '==',
+                                'value' => 'pendiente_todo'
+                            ),
+                        )
+                    )
+                ),
+                array(
+                    'key' => 'field_graduation_responsable_fotos',
+                    'label' => 'Responsable Fotos',
+                    'name' => 'responsable_fotos',
+                    'type' => 'user',
+                    'required' => 0,
+                    'instructions' => 'Usuario encargado de subir/completar las fotos',
+                    'return_format' => 'object',
+                    'conditional_logic' => array(
+                        array(
+                            array(
+                                'field' => 'field_graduation_estado_material',
+                                'operator' => '==',
+                                'value' => 'solo_video'
+                            ),
+                        ),
+                        array(
+                            array(
+                                'field' => 'field_graduation_estado_material',
+                                'operator' => '==',
+                                'value' => 'pendiente_todo'
+                            ),
+                        )
+                    )
                 )
             ),
             'location' => array(
@@ -88,6 +158,11 @@ class MediaLab_Graduation_Post {
                         'param' => 'post_type',
                         'operator' => '==',
                         'value' => 'post'
+                    ),
+                    array(
+                        'param' => 'post_category',
+                        'operator' => '==',
+                        'value' => '218' // ID de categoría Graduaciones
                     )
                 )
             )
@@ -153,9 +228,6 @@ class MediaLab_Graduation_Post {
         if (!empty($data['link']) && !filter_var($data['link'], FILTER_VALIDATE_URL)) {
             $errors[] = 'El link del video no es válido';
         }
-        
-        // Nota: La categoría está hardcodeada, no necesita validación
-        // Nota: La galería y etiquetas son opcionales
         
         return array(
             'valid' => empty($errors),
@@ -226,11 +298,15 @@ class MediaLab_Graduation_Post {
                 $this->attach_images_to_post($post_id, $gallery_images);
             }
             
+            // DETECTAR Y ASIGNAR ESTADO DEL MATERIAL AUTOMÁTICAMENTE
+            $this->detect_and_save_material_status($post_id, $data);
+            
             return array(
                 'success' => true,
                 'message' => 'Post de graduación creado exitosamente',
                 'post_id' => $post_id,
-                'edit_url' => admin_url('post.php?post=' . $post_id . '&action=edit')
+                'edit_url' => admin_url('post.php?post=' . $post_id . '&action=edit'),
+                'material_status' => $this->get_material_status_message($post_id)
             );
             
         } catch (Exception $e) {
@@ -246,7 +322,7 @@ class MediaLab_Graduation_Post {
             return '';
         }
         
-        // Crear el bloque de galería en formato Gutenberg (igual que gallery-post)
+        // Crear el bloque de galería en formato Gutenberg
         $gallery_html = '<!-- wp:gallery {"ids":[' . implode(',', $image_ids) . '],"columns":3,"linkTo":"media","sizeSlug":"large"} -->';
         $gallery_html .= '<figure class="wp-block-gallery has-nested-images columns-3 is-cropped">';
         
@@ -302,6 +378,81 @@ class MediaLab_Graduation_Post {
         }
     }
     
+    /**
+     * NUEVA FUNCIÓN: Detectar estado del material automáticamente
+     */
+    private function detect_and_save_material_status($post_id, $data) {
+        $tiene_video = !empty($data['link']);
+        $tiene_fotos = !empty($data['gallery_images']) && 
+                      (is_array($data['gallery_images']) ? count($data['gallery_images']) > 0 : 
+                       (is_string($data['gallery_images']) && !empty(json_decode($data['gallery_images'], true))));
+        
+        if ($tiene_video && $tiene_fotos) {
+            $estado = 'completo';
+        } elseif ($tiene_video && !$tiene_fotos) {
+            $estado = 'solo_video';
+        } elseif (!$tiene_video && $tiene_fotos) {
+            $estado = 'solo_fotos';
+        } else {
+            $estado = 'pendiente_todo';
+        }
+        
+        update_field('estado_material', $estado, $post_id);
+        
+        return $estado;
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Hook para detectar automáticamente en posts existentes
+     */
+    public function auto_detect_material_status($post_id) {
+        // Solo para posts de graduación (categoría 218)
+        if (!has_category(218, $post_id)) {
+            return;
+        }
+        
+        // Solo para posts desde 2025
+        $post_date = get_the_date('Y-m-d', $post_id);
+        if ($post_date < '2025-01-01') {
+            return;
+        }
+        
+        $tiene_video = !empty(get_field('link', $post_id));
+        $gallery_images = get_field('gallery_images', $post_id);
+        $tiene_fotos = !empty($gallery_images);
+        
+        if ($tiene_video && $tiene_fotos) {
+            $estado = 'completo';
+        } elseif ($tiene_video && !$tiene_fotos) {
+            $estado = 'solo_video';
+        } elseif (!$tiene_video && $tiene_fotos) {
+            $estado = 'solo_fotos';
+        } else {
+            $estado = 'pendiente_todo';
+        }
+        
+        update_field('estado_material', $estado, $post_id);
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Obtener mensaje del estado del material
+     */
+    private function get_material_status_message($post_id) {
+        $estado = get_field('estado_material', $post_id);
+        
+        switch ($estado) {
+            case 'completo':
+                return '✅ Material completo (video y fotos)';
+            case 'solo_video':
+                return '🎥 Solo video - Faltan fotos';
+            case 'solo_fotos':
+                return '📷 Solo fotos - Falta video';
+            case 'pendiente_todo':
+            default:
+                return '⏳ Material pendiente';
+        }
+    }
+    
     private function attach_images_to_post($post_id, $image_ids) {
         foreach ($image_ids as $image_id) {
             wp_update_post(array(
@@ -330,9 +481,3 @@ class MediaLab_Graduation_Post {
 
 // Inicializar la clase
 new MediaLab_Graduation_Post();
-
-// Función helper
-function medialab_get_graduation_tags() {
-    $graduation_post = new MediaLab_Graduation_Post();
-    return $graduation_post->get_tags();
-}

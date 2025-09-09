@@ -20,10 +20,6 @@ $tags = get_tags(array(
     <h1 class="wp-heading-inline">🎓 Graduation Post</h1>
     <hr class="wp-header-end">
     
-    <div class="notice notice-info">
-        <p><strong>💡 Graduaciones:</strong> Combina video de la ceremonia con galería de fotos. Se publicará automáticamente en la categoría "Graduaciones".</p>
-    </div>
-    
     <div id="medialab-messages"></div>
     
     <form id="medialab-graduation-form" method="post" novalidate="novalidate">
@@ -57,7 +53,9 @@ $tags = get_tags(array(
                                                    maxlength="200"
                                                    required
                                                    placeholder="Ej: Ceremonia de Graduación FISICC Promoción 2024">
-                                            <p class="description">Incluye facultad y promoción para mayor claridad</p>
+                                            <p class="description" style="color: #d63638; font-weight: 600;">
+                                                ⚠️ Colocar el nombre del evento tal como aparece en la hoja de producción
+                                            </p>
                                         </td>
                                     </tr>
                                     
@@ -72,7 +70,9 @@ $tags = get_tags(array(
                                                    name="link" 
                                                    class="regular-text code"
                                                    placeholder="https://youtube.com/watch?v=... (opcional)">
-                                            <p class="description">URL del video completo de la ceremonia (si está disponible)</p>
+                                            <p class="description" style="color: #0073aa; font-weight: 500;">
+                                                📹 URL completa del video de ceremonia (YouTube/Vimeo). Opcional si solo tienes fotos
+                                            </p>
                                         </td>
                                     </tr>
                                     
@@ -90,7 +90,9 @@ $tags = get_tags(array(
                                                    required
                                                    value="Ceremonia de Graduación"
                                                    placeholder="Ceremonia de Graduación, Graduación Virtual, etc.">
-                                            <p class="description">Especifica el tipo de ceremonia realizada</p>
+                                            <p class="description" style="color: #0073aa; font-weight: 500;">
+                                                🎓 Especifica el tipo de ceremonia: Presencial, Virtual, Híbrida, etc.
+                                            </p>
                                         </td>
                                     </tr>
                                     
@@ -106,7 +108,9 @@ $tags = get_tags(array(
                                                    class="regular-text" 
                                                    required
                                                    placeholder="FISICC, FACTI, FABIQ, etc.">
-                                            <p class="description">Usar nombres cortos oficiales. Para múltiples: FISICC, FACTI</p>
+                                            <p class="description" style="color: #0073aa; font-weight: 500;">
+                                                🏫 Usar nombres cortos oficiales: FISICC, FACTI, Medicina, Derecho. Para múltiples separar con comas: FISICC, FACTI
+                                            </p>
                                         </td>
                                     </tr>
                                     
@@ -124,8 +128,8 @@ $tags = get_tags(array(
                                                       maxlength="500"
                                                       required
                                                       placeholder="Descripción de la ceremonia: número de graduados, logros destacados, etc."></textarea>
-                                            <p class="description">
-                                                Describe la ceremonia, número de graduados y aspectos destacados.
+                                            <p class="description" style="color: #0073aa; font-weight: 500;">
+                                                📝 Información sobre la ceremonia, graduados y aspectos destacados. Contenido valioso para familias y graduados
                                                 <span id="excerpt-counter">0/500 caracteres</span>
                                             </p>
                                         </td>
@@ -144,8 +148,8 @@ $tags = get_tags(array(
                         <div class="inside">
                             
                             <div class="gallery-management">
-                                <p class="description">
-                                    <strong>Recomendado:</strong> Incluye fotos de diferentes momentos de la ceremonia (entrada, discursos, entrega de diplomas, fotos grupales).
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                    📷 <strong>Recomendado:</strong> Momentos clave de la ceremonia (entrada, discursos, entrega de diplomas, foto grupal)
                                 </p>
                                 
                                 <p class="hide-if-no-js">
@@ -193,14 +197,18 @@ $tags = get_tags(array(
                                        class="widefat"
                                        required
                                        value="<?php echo date('Y-m-d\TH:i'); ?>">
-                                <p class="description">Fecha y hora en que se realizó la ceremonia</p>
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                    📅 Fecha y hora en que se realizó la ceremonia, NO cuando publicas el post
+                                </p>
                             </div>
                             
                             <!-- Categoría fija -->
                             <div class="misc-pub-section">
                                 <label>📂 Categoría:</label><br>
                                 <strong style="color: #2271b1;">🎓 Graduaciones</strong>
-                                <p class="description">Categoría asignada automáticamente</p>
+                                <p class="description" style="color: #2271b1; font-weight: 500;">
+                                    🎓 Categoría asignada automáticamente para todas las graduaciones
+                                </p>
                                 <input type="hidden" name="post_category[]" value="218">
                             </div>
                             
@@ -235,7 +243,9 @@ $tags = get_tags(array(
                         </div>
                         <div class="inside">
                             <div class="tagsdiv">
-                                <p class="description">Selecciona etiquetas para facilitar la búsqueda y filtrado:</p>
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                    🏷️ Selecciona etiquetas para facilitar búsqueda: año, facultad, nivel académico, etc.
+                                </p>
                                 
                                 <div class="tags-selector" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
                                     <?php foreach ($tags as $tag): ?>
@@ -252,8 +262,8 @@ $tags = get_tags(array(
                                     <?php endforeach; ?>
                                 </div>
                                 
-                                <p class="description" style="margin-top: 10px;">
-                                    <strong>💡 Tip:</strong> Selecciona etiquetas como "2024", nombre de la facultad, "pregrado", "postgrado", etc.
+                                <p class="description" style="margin-top: 10px; color: #0073aa; font-weight: 500;">
+                                    💡 <strong>Tip:</strong> Usa etiquetas como "2024", "pregrado", "postgrado", nombre de facultad para mejor organización
                                 </p>
                             </div>
                         </div>
@@ -277,8 +287,8 @@ $tags = get_tags(array(
                                     <div id="postthumbnail" class="inside">
                                         <div id="featured-image-preview"></div>
                                     </div>
-                                    <p class="hide-if-no-js howto" id="set-post-thumbnail-desc">
-                                        Recomendado: Foto representativa de la ceremonia
+                                    <p class="description" style="color: #d63638; font-weight: 500;">
+                                        📸 Máximo 2MB, hasta 1500x1500px. JPG/PNG. Recomendado: foto representativa de la ceremonia
                                     </p>
                                     <input type="hidden" 
                                            id="featured_image_id" 

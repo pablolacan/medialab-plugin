@@ -3,9 +3,9 @@
  * Plugin Name: MediaLab
  * Plugin URI: https://dojolab.com/plugins/medialab
  * Description: Plugin específico para el departamento MediaLab de Universidad Galileo. Simplifica la creación de contenido multimedia mediante formularios intuitivos que reemplazan el uso directo de ACF. Incluye Video Posts, Gallery Posts y Graduation Posts. BETA - En desarrollo continuo.
- * Version: 0.4.1
- * Requires at least: 5.8
- * Tested up to: 6.4
+ * Version: 0.4.2
+ * Requires at least: 6.8
+ * Tested up to: 6.8.1
  * Requires PHP: 8.0
  * Author: Dojo Lab
  * Author URI: https://thedojolab.com
@@ -19,7 +19,7 @@
  * @package MediaLab
  * @category Multimedia
  * @since 0.1.0
- * @version 0.4.1
+ * @version 0.4.2
  * @author Dojo Lab <https://thedojolab.com>
  * 
  * Uso específico: Departamento MediaLab de Universidad Galileo
@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Constantes básicas del plugin
-define('MEDIALAB_VERSION', '0.4.1');
+define('MEDIALAB_VERSION', '0.4.2');
 define('MEDIALAB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MEDIALAB_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('MEDIALAB_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -124,7 +124,8 @@ class MediaLab_Plugin {
         $modules = array(
             'includes/posts/video-post.php',
             'includes/posts/gallery-post.php', 
-            'includes/posts/graduation-post.php'
+            'includes/posts/graduation-post.php',
+            'includes/admin/pending-material.php'  // NUEVO - Gestión de material pendiente
         );
         
         foreach ($modules as $module) {
@@ -179,6 +180,8 @@ class MediaLab_Plugin {
             'medialab-graduation',
             array($this, 'graduation_page')
         );
+        
+        // NUEVO - Submenú Material Pendiente se agrega automáticamente desde pending-material.php
     }
     
     /**
@@ -193,14 +196,15 @@ class MediaLab_Plugin {
             'toplevel_page_medialab',           
             'medialab_page_medialab-video',     
             'medialab_page_medialab-gallery',
-            'medialab_page_medialab-graduation'
+            'medialab_page_medialab-graduation',
+            'medialab_page_medialab-pending'    // NUEVO - Página de material pendiente
         );
         
         if (!in_array($hook, $medialab_pages)) {
             return;
         }
         
-        // JS básico para formularios
+        // Scripts básicos para formularios
         if (in_array($hook, array('medialab_page_medialab-video', 'medialab_page_medialab-gallery', 'medialab_page_medialab-graduation'))) {
             wp_enqueue_media();
             
@@ -214,6 +218,13 @@ class MediaLab_Plugin {
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('medialab_nonce')
             ));
+        }
+        
+        // Scripts específicos para material pendiente
+        if ($hook === 'medialab_page_medialab-pending') {
+            wp_enqueue_media();
+            wp_enqueue_script('thickbox');
+            wp_enqueue_style('thickbox');
         }
     }
     
@@ -300,6 +311,30 @@ class MediaLab_Plugin {
                     </div>
                 </div>
                 
+                <!-- NUEVO - Material Pendiente Card -->
+                <div class="card" style="border-left: 4px solid #e74c3c;">
+                    <h2 class="title">📋 Material Pendiente</h2>
+                    <p>Gestiona graduaciones que necesitan video o fotos.</p>
+                    
+                    <div class="card-content">
+                        <h4>Funciones:</h4>
+                        <ul>
+                            <li>Ver graduaciones incompletas del año</li>
+                            <li>Asignar responsables rápidamente</li>
+                            <li>Completar material con modales</li>
+                            <li>Filtrar por estado y responsable</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <a href="<?php echo admin_url('admin.php?page=medialab-pending'); ?>" 
+                           class="button button-primary button-large" 
+                           style="background: #e74c3c; border-color: #e74c3c; box-shadow: 0 1px 0 #c0392b;">
+                            Ver Pendientes
+                        </a>
+                    </div>
+                </div>
+                
             </div>
             
             <!-- Tips importantes -->
@@ -328,6 +363,12 @@ class MediaLab_Plugin {
                         <div class="notice inline" style="margin: 0; background: #f8f4ff; border-left-color: #9c27b0;">
                             <p><strong>🎓 Para graduaciones:</strong><br>
                             Siempre usa Graduation Post, aunque solo tengas video o fotos.</p>
+                        </div>
+                        
+                        <!-- NUEVO - Tip Material Pendiente -->
+                        <div class="notice inline" style="margin: 0; background: #fdf2f2; border-left-color: #e74c3c;">
+                            <p><strong>📋 Material pendiente:</strong><br>
+                            Revisa regularmente para completar graduaciones incompletas.</p>
                         </div>
                         
                     </div>

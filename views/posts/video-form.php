@@ -105,7 +105,7 @@ $categories = medialab_get_video_categories();
                                                    required
                                                    placeholder="FISICC, FACTI, FABIQ, etc.">
                                             <p class="description" style="color: #0073aa; font-weight: 500;">
-                                                🏫 Usar nombres cortos oficiales: FISICC, FACTI, Medicina, Derecho. Para múltiples separar con comas: FISICC, FACTI
+                                                🏫 Usar nombres cortos oficiales: FISICC, FACTI. Para múltiples separar con comas:.
                                             </p>
                                         </td>
                                     </tr>

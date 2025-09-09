@@ -49,7 +49,9 @@ $categories = medialab_get_gallery_categories();
                                                    maxlength="200"
                                                    required
                                                    placeholder="Ej: Ceremonia de Graduación FISICC 2024">
-                                            <p class="description">Nombre descriptivo del evento o actividad</p>
+                                            <p class="description" style="color: #d63638; font-weight: 600;">
+                                                ⚠️ Colocar el nombre del evento tal como aparece en la hoja de producción
+                                            </p>
                                         </td>
                                     </tr>
                                     
@@ -65,7 +67,9 @@ $categories = medialab_get_gallery_categories();
                                                    class="regular-text" 
                                                    required
                                                    placeholder="FISICC, FACTI, FABIQ, etc.">
-                                            <p class="description">Usar nombres cortos oficiales. Para múltiples: FISICC, FACTI</p>
+                                            <p class="description" style="color: #0073aa; font-weight: 500;">
+                                                🏫 Usar nombres cortos oficiales: FISICC, FACTI. Para múltiples separar con comas.
+                                            </p>
                                         </td>
                                     </tr>
                                     
@@ -83,8 +87,8 @@ $categories = medialab_get_gallery_categories();
                                                       maxlength="500"
                                                       required
                                                       placeholder="Descripción detallada de la galería y el evento..."></textarea>
-                                            <p class="description">
-                                                Describe el evento, participantes y contexto de las fotos.
+                                            <p class="description" style="color: #0073aa; font-weight: 500;">
+                                                📝 Describe el evento y contexto. Información clave para futuros participantes y archivo histórico
                                                 <span id="excerpt-counter">0/500 caracteres</span>
                                             </p>
                                         </td>
@@ -103,8 +107,11 @@ $categories = medialab_get_gallery_categories();
                         <div class="inside">
                             
                             <div class="gallery-management">
-                                <p class="description">
-                                    <strong>Mínimo 2 imágenes requeridas.</strong> Selecciona las mejores fotos que cuenten la historia del evento.
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                📸 <strong>Mínimo 2 imágenes requeridas.</strong> Documenta los mejores momentos del evento presencial
+                                </p> 
+                                 <p class="description" style="color: #d63638; font-weight: 500;">
+                                    📸 Máximo 2MB, hasta 1500x1500px. JPG/PNG.
                                 </p>
                                 
                                 <p class="hide-if-no-js">
@@ -152,7 +159,9 @@ $categories = medialab_get_gallery_categories();
                                        class="widefat"
                                        required
                                        value="<?php echo date('Y-m-d\TH:i'); ?>">
-                                <p class="description">Usar la fecha del evento, no de publicación</p>
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                    📅 Usar la fecha y hora del evento, NO la fecha de cuando publicas el post
+                                </p>
                             </div>
                             
                             <!-- Acciones -->
@@ -198,7 +207,9 @@ $categories = medialab_get_gallery_categories();
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <p class="description">Solo UNA categoría por post. Elegir la más específica.</p>
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                    📂 Solo UNA categoría por galería. Elegir según el tipo de evento documentado
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -221,8 +232,8 @@ $categories = medialab_get_gallery_categories();
                                     <div id="postthumbnail" class="inside">
                                         <div id="featured-image-preview"></div>
                                     </div>
-                                    <p class="hide-if-no-js howto" id="set-post-thumbnail-desc">
-                                        Puede ser diferente a las imágenes de la galería
+                                    <p class="description" style="color: #d63638; font-weight: 500;">
+                                        📸 Máximo 2MB, hasta 1500x1500px. JPG/PNG. Puede ser diferente a las de la galería - usar la más representativa
                                     </p>
                                     <input type="hidden" 
                                            id="featured_image_id" 
