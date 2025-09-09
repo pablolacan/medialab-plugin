@@ -17,7 +17,6 @@ $tags = get_tags(array(
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline">🎓 Graduation Post</h1>
     <hr class="wp-header-end">
     
     <div id="medialab-messages"></div>

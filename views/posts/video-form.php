@@ -13,7 +13,6 @@ $categories = medialab_get_video_categories();
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline">🎥 Video Post</h1>
     <hr class="wp-header-end">
     
     <div id="medialab-messages"></div>

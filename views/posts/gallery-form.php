@@ -13,7 +13,6 @@ $categories = medialab_get_gallery_categories();
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline">🖼️ Gallery Post</h1>
     <hr class="wp-header-end">
     
     <div id="medialab-messages"></div>
