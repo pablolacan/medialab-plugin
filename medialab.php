@@ -2,13 +2,13 @@
 /**
  * Plugin Name: MediaLab
  * Plugin URI: https://dojolab.com/plugins/medialab
- * Description: Plugin específico para el departamento MediaLab de Universidad Galileo. Simplifica la creación de contenido multimedia mediante formularios intuitivos que reemplazan el uso directo de ACF. Incluye Video Posts, Gallery Posts y Graduation Posts. BETA - En desarrollo continuo.
- * Version: 0.4.2
+ * Description: Plugin para la gestión de contenido de Medialab (BETA)
+ * Version: 0.5.2
  * Requires at least: 6.8
  * Tested up to: 6.8.1
- * Requires PHP: 8.0
- * Author: Dojo Lab
- * Author URI: https://thedojolab.com
+ * Requires PHP: 8.2
+ * Author: Equipo de Medialab
+ * Author URI: https://medialab.galileo.edu
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: medialab
@@ -26,10 +26,10 @@
  * Propósito: Simplificar la creación de contenido multimedia para el equipo
  * Dependencias: Advanced Custom Fields (ACF) - Requerido
  * 
- * Copyright (C) 2024 Dojo Lab
+ * Copyright (C) 2025 Medialab
  * 
  * Este plugin está diseñado específicamente para las necesidades del MediaLab
- * de Universidad Galileo y no está pensado para uso general en otras instituciones.
+ * de Universidad Galileo y no está pensado para uso general en otros sitios web.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -378,8 +378,8 @@ class MediaLab_Plugin {
             <!-- Footer info -->
             <div class="notice notice-info" style="margin-top: 30px; background: #f0f6fc; border-left-color: #0073aa;">
                 <p><strong>ℹ️ Plugin MediaLab - BETA v<?php echo MEDIALAB_VERSION; ?>:</strong> 
-                Plugin específico para Universidad Galileo. En desarrollo continuo según necesidades del MediaLab. 
-                Desarrollado por <a href="https://thedojolab.com" target="_blank">Dojo Lab</a>.</p>
+                Plugin para gestión de contenido multimedia del MediaLab de Universidad Galileo.
+                Fase de desarrollo continuo. Reporta bugs o sugiere mejoras a los administradores.</p>
             </div>
         </div>
         <?php
