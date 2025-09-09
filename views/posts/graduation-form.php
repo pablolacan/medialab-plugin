@@ -17,7 +17,7 @@ $tags = get_tags(array(
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline">🎓 Crear Graduation Post</h1>
+    <h1 class="wp-heading-inline">🎓 Graduation Post</h1>
     <hr class="wp-header-end">
     
     <div class="notice notice-info">
@@ -219,7 +219,7 @@ $tags = get_tags(array(
                                                name="publish" 
                                                id="publish" 
                                                class="button button-primary button-large" 
-                                               value="🎓 Crear Graduation Post">
+                                               value="🎓 Publicar">
                                     </div>
                                     <div class="clear"></div>
                                 </div>
@@ -692,7 +692,7 @@ jQuery(document).ready(function($) {
                 );
             },
             complete: function() {
-                $submitBtn.prop('disabled', false).val('🎓 Crear Graduation Post');
+                $submitBtn.prop('disabled', false).val('🎓 Publicar');
                 $('html, body').animate({scrollTop: 0}, 500);
             }
         });

@@ -1,29 +1,109 @@
 <?php
 /**
  * Plugin Name: MediaLab
- * Description: Plugin minimal para gestionar posts de video y galerías del MediaLab
+ * Plugin URI: https://dojolab.com/plugins/medialab
+ * Description: Plugin específico para el departamento MediaLab de Universidad Galileo. Simplifica la creación de contenido multimedia mediante formularios intuitivos que reemplazan el uso directo de ACF. Incluye Video Posts, Gallery Posts y Graduation Posts. BETA - En desarrollo continuo.
  * Version: 0.4.1
+ * Requires at least: 5.8
+ * Tested up to: 6.4
+ * Requires PHP: 8.0
  * Author: Dojo Lab
+ * Author URI: https://thedojolab.com
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: medialab
+ * Domain Path: /languages
+ * Network: false
+ * Tags: medialab, universidad-galileo, multimedia, acf-simplification, custom-posts
+ * 
+ * @package MediaLab
+ * @category Multimedia
+ * @since 0.1.0
+ * @version 0.4.1
+ * @author Dojo Lab <https://thedojolab.com>
+ * 
+ * Uso específico: Departamento MediaLab de Universidad Galileo
+ * Propósito: Simplificar la creación de contenido multimedia para el equipo
+ * Dependencias: Advanced Custom Fields (ACF) - Requerido
+ * 
+ * Copyright (C) 2024 Dojo Lab
+ * 
+ * Este plugin está diseñado específicamente para las necesidades del MediaLab
+ * de Universidad Galileo y no está pensado para uso general en otras instituciones.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Prevenir acceso directo
 if (!defined('ABSPATH')) {
-    exit;
+    exit('Acceso directo no permitido.');
 }
 
-// Constantes básicas
+// Constantes básicas del plugin
 define('MEDIALAB_VERSION', '0.4.1');
 define('MEDIALAB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MEDIALAB_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('MEDIALAB_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
+/**
+ * Clase principal del plugin MediaLab
+ * 
+ * Gestiona la funcionalidad core del plugin específicamente
+ * diseñado para el departamento MediaLab de Universidad Galileo
+ * 
+ * @since 0.1.0
+ */
 class MediaLab_Plugin {
     
+    /**
+     * Constructor de la clase
+     * 
+     * Inicializa todos los hooks y acciones necesarias
+     * 
+     * @since 0.1.0
+     */
     public function __construct() {
         add_action('init', array($this, 'init'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        
+        // Hook de activación para verificar dependencias
+        register_activation_hook(__FILE__, array($this, 'check_dependencies_on_activation'));
     }
     
+    /**
+     * Verifica dependencias al activar el plugin
+     * 
+     * @since 0.4.1
+     */
+    public function check_dependencies_on_activation() {
+        if (!class_exists('ACF')) {
+            deactivate_plugins(MEDIALAB_PLUGIN_BASENAME);
+            wp_die(
+                '<h1>MediaLab Plugin</h1>' .
+                '<p><strong>Error:</strong> Este plugin requiere Advanced Custom Fields (ACF) para funcionar.</p>' .
+                '<p>Por favor, instala y activa ACF antes de activar MediaLab.</p>' .
+                '<p><a href="' . admin_url('plugins.php') . '">&larr; Volver a Plugins</a></p>'
+            );
+        }
+    }
+    
+    /**
+     * Inicialización del plugin
+     * 
+     * @since 0.1.0
+     */
     public function init() {
         // Verificar ACF
         if (!class_exists('ACF')) {
@@ -31,20 +111,39 @@ class MediaLab_Plugin {
             return;
         }
         
-        // Cargar módulos
+        // Cargar módulos específicos de MediaLab
         $this->load_modules();
     }
     
+    /**
+     * Cargar módulos del plugin
+     * 
+     * @since 0.1.0
+     */
     private function load_modules() {
-        require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/video-post.php';
-        require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/gallery-post.php';
-        require_once MEDIALAB_PLUGIN_PATH . 'includes/posts/graduation-post.php';
+        $modules = array(
+            'includes/posts/video-post.php',
+            'includes/posts/gallery-post.php', 
+            'includes/posts/graduation-post.php'
+        );
+        
+        foreach ($modules as $module) {
+            $file_path = MEDIALAB_PLUGIN_PATH . $module;
+            if (file_exists($file_path)) {
+                require_once $file_path;
+            }
+        }
     }
     
+    /**
+     * Agregar menús de administración
+     * 
+     * @since 0.1.0
+     */
     public function add_admin_menu() {
         // Menú principal - Dashboard de bienvenida
         add_menu_page(
-            'MediaLab',
+            'MediaLab - Universidad Galileo',
             'MediaLab',
             'manage_options',
             'medialab',
@@ -82,6 +181,12 @@ class MediaLab_Plugin {
         );
     }
     
+    /**
+     * Cargar scripts y estilos de administración
+     * 
+     * @param string $hook Página actual del admin
+     * @since 0.1.0
+     */
     public function enqueue_admin_scripts($hook) {
         // Solo cargar en páginas de MediaLab
         $medialab_pages = array(
@@ -99,10 +204,11 @@ class MediaLab_Plugin {
         if (in_array($hook, array('medialab_page_medialab-video', 'medialab_page_medialab-gallery', 'medialab_page_medialab-graduation'))) {
             wp_enqueue_media();
             
+            // Select2 para mejores selectores
             wp_enqueue_script('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js', array('jquery'), '4.0.13', true);
             wp_enqueue_style('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css', array(), '4.0.13');
             
-            // AJAX
+            // Scripts personalizados de MediaLab
             wp_enqueue_script('medialab-admin', MEDIALAB_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), MEDIALAB_VERSION, true);
             wp_localize_script('medialab-admin', 'medialab_ajax', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
@@ -111,11 +217,16 @@ class MediaLab_Plugin {
         }
     }
     
+    /**
+     * Página principal del dashboard
+     * 
+     * @since 0.1.0
+     */
     public function dashboard_page() {
         ?>
         <div class="wrap">
             <h1>Bienvenido a MediaLab</h1>
-            <p class="description">Plugin para gestionar contenido multimedia del MediaLab - Versión 0.4.1 (En pruebas)</p>
+            <p class="description">Plugin para gestionar contenido multimedia del MediaLab - Universidad Galileo | Versión <?php echo MEDIALAB_VERSION; ?> (BETA)</p>
             
             <div class="card-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
                 
@@ -225,32 +336,77 @@ class MediaLab_Plugin {
             
             <!-- Footer info -->
             <div class="notice notice-info" style="margin-top: 30px; background: #f0f6fc; border-left-color: #0073aa;">
-                <p><strong>ℹ️ Versión 0.4.1 - En pruebas:</strong> 
-                Esta versión está siendo probada. Reporta cualquier problema o sugerencia al equipo de desarrollo.</p>
+                <p><strong>ℹ️ Plugin MediaLab - BETA v<?php echo MEDIALAB_VERSION; ?>:</strong> 
+                Plugin específico para Universidad Galileo. En desarrollo continuo según necesidades del MediaLab. 
+                Desarrollado por <a href="https://thedojolab.com" target="_blank">Dojo Lab</a>.</p>
             </div>
         </div>
         <?php
     }
     
+    /**
+     * Página de Video Posts
+     * 
+     * @since 0.1.0
+     */
     public function video_page() {
-        include MEDIALAB_PLUGIN_PATH . 'views/posts/video-form.php';
+        $form_path = MEDIALAB_PLUGIN_PATH . 'views/posts/video-form.php';
+        if (file_exists($form_path)) {
+            include $form_path;
+        } else {
+            echo '<div class="wrap"><h1>Video Post</h1><p>Archivo de formulario no encontrado.</p></div>';
+        }
     }
     
+    /**
+     * Página de Gallery Posts
+     * 
+     * @since 0.1.0
+     */
     public function gallery_page() {
-        include MEDIALAB_PLUGIN_PATH . 'views/posts/gallery-form.php';
+        $form_path = MEDIALAB_PLUGIN_PATH . 'views/posts/gallery-form.php';
+        if (file_exists($form_path)) {
+            include $form_path;
+        } else {
+            echo '<div class="wrap"><h1>Gallery Post</h1><p>Archivo de formulario no encontrado.</p></div>';
+        }
     }
     
+    /**
+     * Página de Graduation Posts
+     * 
+     * @since 0.1.0
+     */
     public function graduation_page() {
-        include MEDIALAB_PLUGIN_PATH . 'views/posts/graduation-form.php';
+        $form_path = MEDIALAB_PLUGIN_PATH . 'views/posts/graduation-form.php';
+        if (file_exists($form_path)) {
+            include $form_path;
+        } else {
+            echo '<div class="wrap"><h1>Graduation Post</h1><p>Archivo de formulario no encontrado.</p></div>';
+        }
     }
     
+    /**
+     * Aviso de ACF faltante
+     * 
+     * @since 0.1.0
+     */
     public function acf_missing_notice() {
         ?>
-        <div class="notice notice-error">
+        <div class="notice notice-error is-dismissible">
+            <h3>⚠️ MediaLab Plugin - Dependencia Requerida</h3>
             <p>
-                <strong>MediaLab:</strong> Este plugin requiere Advanced Custom Fields (ACF) para funcionar correctamente.
-                <a href="<?php echo admin_url('plugin-install.php?s=advanced+custom+fields&tab=search&type=term'); ?>" class="button button-secondary">
-                    Instalar ACF
+                <strong>Advanced Custom Fields (ACF)</strong> es requerido para que MediaLab funcione correctamente.<br>
+                Este plugin simplifica el uso de ACF para el equipo del MediaLab de Universidad Galileo.
+            </p>
+            <p>
+                <a href="<?php echo admin_url('plugin-install.php?s=advanced+custom+fields&tab=search&type=term'); ?>" 
+                   class="button button-primary">
+                    Instalar ACF Ahora
+                </a>
+                <a href="<?php echo admin_url('plugins.php'); ?>" 
+                   class="button button-secondary">
+                    Ver Todos los Plugins
                 </a>
             </p>
         </div>
@@ -258,5 +414,24 @@ class MediaLab_Plugin {
     }
 }
 
-// Inicializar
-new MediaLab_Plugin();
+/**
+ * Inicializar el plugin MediaLab
+ * 
+ * @since 0.1.0
+ */
+function medialab_init() {
+    new MediaLab_Plugin();
+}
+
+// Inicializar cuando WordPress esté listo
+add_action('plugins_loaded', 'medialab_init');
+
+/**
+ * Hook de desactivación
+ * 
+ * @since 0.4.1
+ */
+register_deactivation_hook(__FILE__, function() {
+    // Limpiar cualquier configuración temporal si es necesario
+    delete_transient('medialab_admin_notice');
+});
