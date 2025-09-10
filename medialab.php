@@ -2,8 +2,8 @@
 /**
  * Plugin Name: MediaLab
  * Plugin URI: https://dojolab.com/plugins/medialab
- * Description: Plugin para la gestión de contenido de Medialab (BETA)
- * Version: 0.8.1
+ * Description: Plugin para la gestión de contenido de Medialab con notificaciones email (BETA)
+ * Version: 0.8.2
  * Requires at least: 6.8
  * Tested up to: 6.8.1
  * Requires PHP: 8.1
@@ -14,17 +14,23 @@
  * Text Domain: medialab
  * Domain Path: /languages
  * Network: false
- * Tags: medialab, universidad-galileo, multimedia, acf-simplification, custom-posts
+ * Tags: medialab, universidad-galileo, multimedia, acf-simplification, custom-posts, email-notifications
  * 
  * @package MediaLab
  * @category Multimedia
  * @since 0.1.0
- * @version 0.6.0
+ * @version 0.8.2
  * @author Dojo Lab <https://thedojolab.com>
  * 
  * Uso específico: Departamento MediaLab de Universidad Galileo
  * Propósito: Simplificar la creación de contenido multimedia para el equipo
  * Dependencias: Advanced Custom Fields (ACF) - Requerido
+ * 
+ * NUEVAS CARACTERÍSTICAS v0.8.2:
+ * - Sistema de notificaciones por email
+ * - Material Pendiente mejorado
+ * - Integración con Post SMTP
+ * - Hooks para asignaciones y completación
  * 
  * Copyright (C) 2025 Medialab
  * 
@@ -38,7 +44,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Constantes básicas del plugin
-define('MEDIALAB_VERSION', '0.6.0');
+define('MEDIALAB_VERSION', '0.8.2');
 define('MEDIALAB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MEDIALAB_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('MEDIALAB_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -55,6 +61,9 @@ class MediaLab_Plugin {
         
         // Hook de activación para verificar dependencias
         register_activation_hook(__FILE__, array($this, 'check_dependencies_on_activation'));
+        
+        // NUEVO: Verificar Post SMTP para notificaciones
+        add_action('admin_notices', array($this, 'check_post_smtp_notice'));
     }
     
     public function check_dependencies_on_activation() {
@@ -69,6 +78,38 @@ class MediaLab_Plugin {
         }
     }
     
+    /**
+     * NUEVA FUNCIÓN: Verificar Post SMTP para notificaciones
+     */
+    public function check_post_smtp_notice() {
+        // Solo mostrar en páginas de MediaLab
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'medialab') === false) {
+            return;
+        }
+        
+        // Solo si las notificaciones están habilitadas pero Post SMTP no está activo
+        if (get_option('medialab_email_enabled', 0) == 1 && !is_plugin_active('post-smtp/postman-smtp.php')) {
+            ?>
+            <div class="notice notice-warning is-dismissible">
+                <h3>📧 MediaLab - Notificaciones Email</h3>
+                <p>
+                    <strong>Las notificaciones están habilitadas pero Post SMTP no está activado.</strong><br>
+                    Para enviar emails, necesitas configurar Post SMTP.
+                </p>
+                <p>
+                    <a href="<?php echo admin_url('plugin-install.php?s=post+smtp&tab=search'); ?>" class="button button-primary">
+                        Instalar Post SMTP
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=medialab-email-settings'); ?>" class="button button-secondary">
+                        Configurar Notificaciones
+                    </a>
+                </p>
+            </div>
+            <?php
+        }
+    }
+    
     public function init() {
         // Verificar ACF
         if (!class_exists('ACF')) {
@@ -78,6 +119,9 @@ class MediaLab_Plugin {
         
         // Cargar módulos específicos de MediaLab
         $this->load_modules();
+        
+        // NUEVO: Registrar hooks globales para notificaciones
+        $this->register_notification_hooks();
     }
     
     private function load_modules() {
@@ -87,19 +131,54 @@ class MediaLab_Plugin {
             'includes/posts/gallery-post.php', 
             'includes/posts/graduation-post.php',
             
-            // Nuevo orquestrador para UI unificada
+            // Orquestrador para UI unificada
             'includes/admin/posts-orchestrator.php',
             
             // Gestión de material pendiente
-            'includes/admin/pending-material.php'
+            'includes/admin/pending-material.php',
+            
+            // NUEVO: Sistema de notificaciones email
+            'includes/admin/email-notifications.php'
         );
         
         foreach ($modules as $module) {
             $file_path = MEDIALAB_PLUGIN_PATH . $module;
             if (file_exists($file_path)) {
                 require_once $file_path;
+            } else {
+                // Log de módulos faltantes para debug
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('MediaLab: Módulo no encontrado - ' . $module);
+                }
             }
         }
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Registrar hooks globales para notificaciones
+     */
+    private function register_notification_hooks() {
+        // Hook para debug de notificaciones (solo en modo debug)
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            add_action('medialab_responsable_assigned', array($this, 'debug_responsable_assigned'), 5, 3);
+            add_action('medialab_graduation_published_pending', array($this, 'debug_graduation_pending'), 5, 2);
+            add_action('medialab_material_completed', array($this, 'debug_material_completed'), 5, 2);
+        }
+    }
+    
+    /**
+     * NUEVAS FUNCIONES: Debug hooks (solo en modo debug)
+     */
+    public function debug_responsable_assigned($post_id, $user_id, $tipo) {
+        error_log("MediaLab Debug: Responsable asignado - Post: $post_id, Usuario: $user_id, Tipo: $tipo");
+    }
+    
+    public function debug_graduation_pending($post_id, $estado) {
+        error_log("MediaLab Debug: Graduación pendiente - Post: $post_id, Estado: $estado");
+    }
+    
+    public function debug_material_completed($post_id, $tipo_completacion) {
+        error_log("MediaLab Debug: Material completado - Post: $post_id, Tipo: $tipo_completacion");
     }
     
     public function add_admin_menu() {
@@ -114,28 +193,35 @@ class MediaLab_Plugin {
             25
         );
         
-        // NUEVO: Solo un submenú para todos los posts
-        // El orquestador se encarga de manejar el resto
-        
-        // Material Pendiente se agrega automáticamente desde pending-material.php
+        // Los submenús se agregan automáticamente desde otros módulos:
+        // - Crear Posts (posts-orchestrator.php)
+        // - Material Pendiente (pending-material.php)  
+        // - Config. Emails (email-notifications.php)
     }
     
     public function enqueue_admin_scripts($hook) {
         // Solo cargar en páginas de MediaLab
         $medialab_pages = array(
             'toplevel_page_medialab',           
-            'medialab_page_medialab-posts',      // NUEVO: Página unificada
-            'medialab_page_medialab-pending'
+            'medialab_page_medialab-posts',      
+            'medialab_page_medialab-pending',
+            'medialab_page_medialab-email-settings'  // NUEVO
         );
         
         if (!in_array($hook, $medialab_pages)) {
             return;
         }
         
-        // Scripts básicos para formularios unificados
+        // Scripts básicos para todas las páginas de MediaLab
+        wp_enqueue_script('medialab-admin', MEDIALAB_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), MEDIALAB_VERSION, true);
+        wp_localize_script('medialab-admin', 'medialab_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('medialab_nonce')
+        ));
+        
+        // Scripts específicos para formularios de posts
         if ($hook === 'medialab_page_medialab-posts') {
             // Los assets se manejan desde el orquestador según el tab activo
-            // No cargar nada aquí para evitar conflictos
         }
         
         // Scripts específicos para material pendiente
@@ -143,6 +229,11 @@ class MediaLab_Plugin {
             wp_enqueue_media();
             wp_enqueue_script('thickbox');
             wp_enqueue_style('thickbox');
+        }
+        
+        // NUEVO: Scripts para configuración de emails
+        if ($hook === 'medialab_page_medialab-email-settings') {
+            // Scripts cargados desde email-notifications.php
         }
     }
     
@@ -154,7 +245,7 @@ class MediaLab_Plugin {
             
             <div class="card-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 30px;">
                 
-                <!-- NUEVO: Card Unificada para Crear Posts -->
+                <!-- Card para Crear Posts -->
                 <div class="card" style="border-left: 4px solid #2271b1;">
                     <h2 class="title">📝 Crear Posts</h2>
                     <p>Acceso unificado a todos los tipos de contenido multimedia.</p>
@@ -200,9 +291,50 @@ class MediaLab_Plugin {
                     </div>
                 </div>
                 
+                <!-- NUEVA: Card de Notificaciones Email -->
+                <div class="card" style="border-left: 4px solid #27ae60;">
+                    <h2 class="title">📧 Notificaciones Email</h2>
+                    <p>Configura notificaciones automáticas para asignaciones.</p>
+                    
+                    <div class="card-content">
+                        <?php if (get_option('medialab_email_enabled', 0) == 1): ?>
+                            <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                <strong>✅ Notificaciones activas</strong><br>
+                                <small>Se envían emails automáticamente</small>
+                            </div>
+                            <h4>Características activas:</h4>
+                            <ul>
+                                <li>✅ Asignación de responsables</li>
+                                <li>✅ Graduaciones pendientes</li>
+                                <li>✅ Copia a supervisores</li>
+                            </ul>
+                        <?php else: ?>
+                            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                <strong>⚠️ Notificaciones desactivadas</strong><br>
+                                <small>Configura para activar emails automáticos</small>
+                            </div>
+                            <h4>Funciones disponibles:</h4>
+                            <ul>
+                                <li>📧 Notificaciones de asignaciones</li>
+                                <li>📋 Alertas de material pendiente</li>
+                                <li>👥 Emails a supervisores</li>
+                                <li>🧪 Pruebas de configuración</li>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <a href="<?php echo admin_url('admin.php?page=medialab-email-settings'); ?>" 
+                           class="button button-primary button-large" 
+                           style="background: #27ae60; border-color: #27ae60; box-shadow: 0 1px 0 #1e8449;">
+                            Configurar Emails
+                        </a>
+                    </div>
+                </div>
+                
             </div>
             
-            <!-- Tips importantes -->
+            <!-- Tips importantes ACTUALIZADOS -->
             <div class="postbox" style="margin-top: 40px;">
                 <div class="postbox-header">
                     <h2>💡 Tips Importantes</h2>
@@ -212,7 +344,7 @@ class MediaLab_Plugin {
                         
                         <div class="notice notice-info inline" style="margin: 0;">
                             <p><strong>📝 Nueva interfaz:</strong><br>
-                            Ahora todos los tipos de posts están en un solo lugar con tabs organizados.</p>
+                            Todos los tipos de posts están en un solo lugar con tabs organizados.</p>
                         </div>
                         
                         <div class="notice notice-info inline" style="margin: 0;">
@@ -240,14 +372,25 @@ class MediaLab_Plugin {
                             Revisa regularmente para completar graduaciones incompletas.</p>
                         </div>
                         
+                        <!-- NUEVO: Tip sobre notificaciones -->
+                        <div class="notice inline" style="margin: 0; background: #f0f8f4; border-left-color: #27ae60;">
+                            <p><strong>📧 Notificaciones:</strong><br>
+                            Configura Post SMTP y activa emails para seguimiento automático.</p>
+                        </div>
+                        
+                        <div class="notice inline" style="margin: 0; background: #fff9e6; border-left-color: #f39c12;">
+                            <p><strong>🔧 Post SMTP:</strong><br>
+                            Plugin gratuito requerido para envío de emails automáticos.</p>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
             
-            <!-- Footer info -->
+            <!-- Footer info ACTUALIZADO -->
             <div class="notice notice-info" style="margin-top: 30px; background: #f0f6fc; border-left-color: #0073aa;">
                 <p><strong>ℹ️ Plugin MediaLab - BETA v<?php echo MEDIALAB_VERSION; ?>:</strong> 
-                Nueva interfaz unificada con tabs para mejor organización. 
+                Ahora con sistema de notificaciones email integrado. Configurar Post SMTP para activar emails automáticos.
                 Reporta bugs o sugiere mejoras a los administradores.</p>
             </div>
         </div>
@@ -292,4 +435,9 @@ add_action('plugins_loaded', 'medialab_init');
  */
 register_deactivation_hook(__FILE__, function() {
     delete_transient('medialab_admin_notice');
+    
+    // NUEVO: Limpiar opciones de notificaciones si se desactiva el plugin
+    // (opcional - mantener configuración para reactivación)
+    // delete_option('medialab_email_enabled');
+    // delete_option('medialab_email_supervisors');
 });

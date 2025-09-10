@@ -139,51 +139,6 @@ $categories = medialab_get_video_categories();
                 <!-- Sidebar -->
                 <div id="postbox-container-1" class="postbox-container">
                     
-                    <!-- Publicar -->
-                    <div class="postbox">
-                        <div class="postbox-header">
-                            <h2 class="ui-sortable-handle">📤 Publicar</h2>
-                        </div>
-                        <div class="inside">
-                            
-                            <!-- Fecha -->
-                            <div class="misc-pub-section misc-pub-post-status">
-                                <label for="post_date">📅 Fecha del evento:</label><br>
-                                <input type="datetime-local" 
-                                       id="post_date" 
-                                       name="post_date" 
-                                       class="widefat"
-                                       required
-                                       value="<?php echo date('Y-m-d\TH:i'); ?>">
-                                <p class="description" style="color: #0073aa; font-weight: 500;">
-                                    📅 Usar la fecha y hora del evento, NO la fecha de cuando publicas el post
-                                </p>
-                            </div>
-                            
-                            <!-- Acciones -->
-                            <div class="submitbox">
-                                <div id="major-publishing-actions">
-                                    <div id="delete-action">
-                                        <button type="button" 
-                                                class="button" 
-                                                id="reset-form">
-                                            🔄 Limpiar
-                                        </button>
-                                    </div>
-                                    <div id="publishing-action">
-                                        <input type="submit" 
-                                               name="publish" 
-                                               id="publish" 
-                                               class="button button-primary button-large" 
-                                               value="🎥 Publicar">
-                                    </div>
-                                    <div class="clear"></div>
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                    
                     <!-- Categoría -->
                     <div class="postbox">
                         <div class="postbox-header">
@@ -237,6 +192,51 @@ $categories = medialab_get_video_categories();
                                            value="">
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Publicar -->
+                    <div class="postbox">
+                        <div class="postbox-header">
+                            <h2 class="ui-sortable-handle">📤 Publicar</h2>
+                        </div>
+                        <div class="inside">
+                            
+                            <!-- Fecha -->
+                            <div class="misc-pub-section misc-pub-post-status">
+                                <label for="post_date">📅 Fecha del evento:</label><br>
+                                <input type="datetime-local" 
+                                       id="post_date" 
+                                       name="post_date" 
+                                       class="widefat"
+                                       required
+                                       value="<?php echo date('Y-m-d\TH:i'); ?>">
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                    📅 Usar la fecha y hora del evento, NO la fecha de cuando publicas el post
+                                </p>
+                            </div>
+                            
+                            <!-- Acciones -->
+                            <div class="submitbox">
+                                <div id="major-publishing-actions">
+                                    <div id="delete-action">
+                                        <button type="button" 
+                                                class="button" 
+                                                id="reset-form">
+                                            🔄 Limpiar
+                                        </button>
+                                    </div>
+                                    <div id="publishing-action">
+                                        <input type="submit" 
+                                               name="publish" 
+                                               id="publish" 
+                                               class="button button-primary button-large" 
+                                               value="🎥 Publicar">
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                     

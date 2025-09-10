@@ -1,7 +1,7 @@
 <?php
 /**
- * MediaLab - Graduation Post Form
- * Formulario híbrido: Video + Gallery + Etiquetas (usando clases WordPress)
+ * MediaLab - Graduation Post Form (LIMPIO)
+ * Formulario para graduaciones con categoría fija "Graduaciones"
  */
 
 if (!defined('ABSPATH')) {
@@ -14,6 +14,14 @@ $tags = get_tags(array(
     'orderby' => 'name',
     'order' => 'ASC'
 ));
+
+// Verificar/crear categoría Graduaciones
+$graduaciones_cat = get_category_by_slug('graduaciones');
+if (!$graduaciones_cat) {
+    // Crear la categoría si no existe
+    $cat_id = wp_create_category('Graduaciones');
+    $graduaciones_cat = get_category($cat_id);
+}
 ?>
 
 <div class="wrap">
@@ -23,7 +31,6 @@ $tags = get_tags(array(
     
     <form id="medialab-graduation-form" method="post" novalidate="novalidate">
         
-        <!-- Metabox principal -->
         <div id="poststuff">
             <div id="post-body" class="metabox-holder columns-2">
                 
@@ -90,7 +97,7 @@ $tags = get_tags(array(
                                                    value="Ceremonia de Graduación"
                                                    placeholder="Ceremonia de Graduación, Graduación Virtual, etc.">
                                             <p class="description" style="color: #0073aa; font-weight: 500;">
-                                                🎓 Especifica el tipo de ceremonia: Presencial, Virtual, Híbrida, etc.
+                                                🎓 Especifica el tipo: Presencial, Virtual, Híbrida, etc.
                                             </p>
                                         </td>
                                     </tr>
@@ -108,7 +115,7 @@ $tags = get_tags(array(
                                                    required
                                                    placeholder="FISICC, FACTI, FABIQ, etc.">
                                             <p class="description" style="color: #0073aa; font-weight: 500;">
-                                                🏫 Usar nombres cortos oficiales: FISICC, FACTI, Medicina, Derecho. Para múltiples separar con comas: FISICC, FACTI
+                                                🏫 Usar nombres cortos oficiales: FISICC, FACTI, Medicina. Para múltiples separar con comas
                                             </p>
                                         </td>
                                     </tr>
@@ -128,7 +135,7 @@ $tags = get_tags(array(
                                                       required
                                                       placeholder="Descripción de la ceremonia: número de graduados, logros destacados, etc."></textarea>
                                             <p class="description" style="color: #0073aa; font-weight: 500;">
-                                                📝 Información sobre la ceremonia, graduados y aspectos destacados. Contenido valioso para familias y graduados
+                                                📝 Información sobre la ceremonia, graduados y aspectos destacados
                                                 <span id="excerpt-counter">0/500 caracteres</span>
                                             </p>
                                         </td>
@@ -180,61 +187,6 @@ $tags = get_tags(array(
                 <!-- Sidebar -->
                 <div id="postbox-container-1" class="postbox-container">
                     
-                    <!-- Publicar -->
-                    <div class="postbox">
-                        <div class="postbox-header">
-                            <h2 class="ui-sortable-handle">📤 Publicar</h2>
-                        </div>
-                        <div class="inside">
-                            
-                            <!-- Fecha -->
-                            <div class="misc-pub-section misc-pub-post-status">
-                                <label for="post_date">📅 Fecha de la ceremonia:</label><br>
-                                <input type="datetime-local" 
-                                       id="post_date" 
-                                       name="post_date" 
-                                       class="widefat"
-                                       required
-                                       value="<?php echo date('Y-m-d\TH:i'); ?>">
-                                <p class="description" style="color: #0073aa; font-weight: 500;">
-                                    📅 Fecha y hora en que se realizó la ceremonia, NO cuando publicas el post
-                                </p>
-                            </div>
-                            
-                            <!-- Categoría fija -->
-                            <div class="misc-pub-section">
-                                <label>📂 Categoría:</label><br>
-                                <strong style="color: #2271b1;">🎓 Graduaciones</strong>
-                                <p class="description" style="color: #2271b1; font-weight: 500;">
-                                    🎓 Categoría asignada automáticamente para todas las graduaciones
-                                </p>
-                                <input type="hidden" name="post_category[]" value="218">
-                            </div>
-                            
-                            <!-- Acciones -->
-                            <div class="submitbox">
-                                <div id="major-publishing-actions">
-                                    <div id="delete-action">
-                                        <button type="button" 
-                                                class="button" 
-                                                id="reset-form">
-                                            🔄 Limpiar
-                                        </button>
-                                    </div>
-                                    <div id="publishing-action">
-                                        <input type="submit" 
-                                               name="publish" 
-                                               id="publish" 
-                                               class="button button-primary button-large" 
-                                               value="🎓 Publicar">
-                                    </div>
-                                    <div class="clear"></div>
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                    
                     <!-- Etiquetas -->
                     <div class="postbox">
                         <div class="postbox-header">
@@ -261,10 +213,6 @@ $tags = get_tags(array(
                                     <?php endforeach; ?>
                                 </div>
                                 
-                                <p class="description" style="margin-top: 10px; color: #0073aa; font-weight: 500;">
-                                    💡 <strong>Tip:</strong> Usa etiquetas como "2024", "pregrado", "postgrado", nombre de facultad para mejor organización
-                                </p>
-                            </div>
                         </div>
                     </div>
                     
@@ -299,6 +247,62 @@ $tags = get_tags(array(
                         </div>
                     </div>
                     
+                    <!-- Publicar -->
+                    <div class="postbox">
+                        <div class="postbox-header">
+                            <h2 class="ui-sortable-handle">📤 Publicar</h2>
+                        </div>
+                        <div class="inside">
+                            
+                            <!-- Fecha -->
+                            <div class="misc-pub-section misc-pub-post-status">
+                                <label for="post_date">📅 Fecha de la ceremonia:</label><br>
+                                <input type="datetime-local" 
+                                       id="post_date" 
+                                       name="post_date" 
+                                       class="widefat"
+                                       required
+                                       value="<?php echo date('Y-m-d\TH:i'); ?>">
+                                <p class="description" style="color: #0073aa; font-weight: 500;">
+                                    📅 Fecha y hora en que se realizó la ceremonia, NO cuando publicas el post
+                                </p>
+                            </div>
+                            
+                            <!-- Categoría fija - NO EDITABLE -->
+                            <div class="misc-pub-section">
+                                <label>📂 Categoría:</label><br>
+                                <div style="background: #f0f6fc; border: 1px solid #2271b1; border-radius: 4px; padding: 10px; margin-top: 5px;">
+                                    <strong style="color: #2271b1;">🎓 Graduaciones</strong>
+                                    <p class="description" style="color: #2271b1; font-weight: 500; margin: 5px 0 0 0;">
+                                        Categoría asignada automáticamente. No se puede cambiar.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Acciones -->
+                            <div class="submitbox">
+                                <div id="major-publishing-actions">
+                                    <div id="delete-action">
+                                        <button type="button" 
+                                                class="button" 
+                                                id="reset-form">
+                                            🔄 Limpiar
+                                        </button>
+                                    </div>
+                                    <div id="publishing-action">
+                                        <input type="submit" 
+                                               name="publish" 
+                                               id="publish" 
+                                               class="button button-primary button-large" 
+                                               value="🎓 Publicar">
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+
                 </div>
                 
             </div>
@@ -460,13 +464,9 @@ jQuery(document).ready(function($) {
         
         galleryFrame = wp.media({
             title: 'Seleccionar Fotos de la Graduación',
-            button: {
-                text: 'Agregar a Galería'
-            },
+            button: { text: 'Agregar a Galería' },
             multiple: true,
-            library: {
-                type: 'image'
-            }
+            library: { type: 'image' }
         });
         
         galleryFrame.on('select', function() {
@@ -512,7 +512,6 @@ jQuery(document).ready(function($) {
         
         // Contador
         var counterHtml = '<div class="gallery-counter">📷 ' + selectedImages.length + ' foto(s) seleccionada(s)</div>';
-        
         var previewHtml = counterHtml;
         
         // Crear preview de imágenes
@@ -543,8 +542,6 @@ jQuery(document).ready(function($) {
         });
         
         $preview.html(previewHtml);
-        
-        // Actualizar campo oculto
         $('#gallery_images').val(JSON.stringify(selectedImages));
     }
     
@@ -571,13 +568,9 @@ jQuery(document).ready(function($) {
         
         featuredImageFrame = wp.media({
             title: 'Seleccionar Imagen Destacada para la Graduación',
-            button: {
-                text: 'Usar esta imagen'
-            },
+            button: { text: 'Usar esta imagen' },
             multiple: false,
-            library: {
-                type: 'image'
-            }
+            library: { type: 'image' }
         });
         
         featuredImageFrame.on('select', function() {
@@ -593,7 +586,6 @@ jQuery(document).ready(function($) {
             );
             
             $('#set-post-thumbnail-button').text('🔄 Cambiar imagen destacada');
-            $('#set-post-thumbnail-desc').text('Haz clic para cambiar la imagen destacada');
         });
         
         featuredImageFrame.open();
@@ -613,7 +605,6 @@ jQuery(document).ready(function($) {
             $('#featured-image-preview').empty();
             $('#featured_image_id').val('');
             $('#set-post-thumbnail-button').text('🎓 Establecer imagen destacada');
-            $('#set-post-thumbnail-desc').text('Recomendado: Foto representativa de la ceremonia');
             
             // Reset otros elementos
             $('#medialab-messages').empty();
@@ -642,7 +633,7 @@ jQuery(document).ready(function($) {
         }
         
         // Mostrar estado de carga
-        $submitBtn.prop('disabled', true).val('Creando post de graduación...');
+        $submitBtn.prop('disabled', true).val('Creando graduación...');
         $messages.empty();
         
         // Preparar datos del formulario

@@ -1,6 +1,6 @@
 <?php
 /**
- * MediaLab - Pending Material Admin View
+ * MediaLab - Pending Material Admin View (CORREGIDO)
  * Vista administrativa para gestionar material pendiente de graduaciones con modales
  */
 
@@ -19,6 +19,9 @@ class MediaLab_Pending_Material {
         add_action('wp_ajax_medialab_complete_video', array($this, 'handle_complete_video'));
         add_action('wp_ajax_medialab_complete_gallery', array($this, 'handle_complete_gallery'));
         add_action('wp_ajax_medialab_get_post_data', array($this, 'handle_get_post_data'));
+        
+        // NUEVO: Actualización manual de estado
+        add_action('wp_ajax_medialab_update_status_manual', array($this, 'handle_update_status_manual'));
     }
     
     public function add_pending_menu() {
@@ -101,6 +104,32 @@ class MediaLab_Pending_Material {
                             <td colspan="6" style="text-align: center; padding: 40px;">
                                 <strong>🎉 No hay material pendiente</strong><br>
                                 <span style="color: #666;">Todas las graduaciones de <?php echo $current_year; ?> están completas</span>
+                                <?php if (current_user_can('manage_options')): ?>
+                                    <br><br>
+                                    <details style="margin-top: 15px;">
+                                        <summary style="cursor: pointer; color: #666; font-size: 12px;">🔍 Debug Info (Solo administradores)</summary>
+                                        <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-size: 11px; text-align: left;">
+                                            <?php
+                                            // Debug: Mostrar todas las graduaciones del año
+                                            $all_graduations = get_posts(array(
+                                                'post_type' => 'post',
+                                                'category_name' => 'graduaciones',
+                                                'posts_per_page' => -1,
+                                                'date_query' => array(array('year' => $current_year)),
+                                                'orderby' => 'date',
+                                                'order' => 'DESC'
+                                            ));
+                                            
+                                            echo "<strong>Total graduaciones {$current_year}:</strong> " . count($all_graduations) . "<br>";
+                                            
+                                            foreach ($all_graduations as $grad) {
+                                                $estado = get_field('estado_material', $grad->ID) ?: 'SIN_ESTADO';
+                                                echo "• {$grad->post_title} → {$estado}<br>";
+                                            }
+                                            ?>
+                                        </div>
+                                    </details>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php else: ?>
@@ -172,6 +201,15 @@ class MediaLab_Pending_Material {
                                                 🎥 + Video
                                             </button>
                                         <?php endif; ?>
+                                        
+                                        <!-- NUEVO: Botón para cambio manual de estado -->
+                                        <button type="button" 
+                                                class="button button-small btn-change-status" 
+                                                data-post-id="<?php echo $post->ID; ?>"
+                                                data-current-status="<?php echo $estado; ?>"
+                                                style="background: #8c8f94; color: white;">
+                                            ⚙️ Estado
+                                        </button>
                                         
                                         <!-- Botón Editar post -->
                                         <a href="<?php echo admin_url('post.php?post=' . $post->ID . '&action=edit'); ?>" 
@@ -258,6 +296,50 @@ class MediaLab_Pending_Material {
                     </table>
                     <p class="submit">
                         <input type="submit" class="button button-primary" value="Guardar Fotos">
+                        <button type="button" class="button" onclick="tb_remove();">Cancelar</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+        
+        <!-- NUEVO: Modal Cambiar Estado Manual -->
+        <div id="modal-change-status" style="display: none;">
+            <div class="modal-content">
+                <h3>⚙️ Cambiar Estado del Material</h3>
+                <form id="form-change-status">
+                    <table class="form-table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">
+                                    <label for="new-status">Nuevo Estado</label>
+                                </th>
+                                <td>
+                                    <select id="new-status" name="new_status" class="regular-text" required>
+                                        <option value="">Seleccionar estado...</option>
+                                        <option value="completo">✅ Completo (Video + Fotos)</option>
+                                        <option value="solo_video">🎥 Solo Video (Faltan Fotos)</option>
+                                        <option value="solo_fotos">📷 Solo Fotos (Falta Video)</option>
+                                        <option value="pendiente_todo">⏳ Pendiente Todo</option>
+                                    </select>
+                                    <p class="description">Cambio manual del estado. Se desactivará la detección automática.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label for="disable-auto-detect">Detección Automática</label>
+                                </th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" id="disable-auto-detect" name="disable_auto_detect" value="1">
+                                        Desactivar detección automática para este post
+                                    </label>
+                                    <p class="description">Si se marca, el estado no se actualizará automáticamente al agregar/quitar contenido.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="submit">
+                        <input type="submit" class="button button-primary" value="Actualizar Estado">
                         <button type="button" class="button" onclick="tb_remove();">Cancelar</button>
                     </p>
                 </form>
@@ -354,6 +436,17 @@ class MediaLab_Pending_Material {
                 tb_show('Agregar Fotos', '#TB_inline?inlineId=modal-complete-gallery&width=600&height=400');
             });
             
+            // NUEVO: Cambiar estado manual
+            $('.btn-change-status').on('click', function() {
+                currentPostId = $(this).data('post-id');
+                var currentStatus = $(this).data('current-status');
+                
+                // Preseleccionar el estado actual
+                $('#new-status').val(currentStatus);
+                
+                tb_show('Cambiar Estado', '#TB_inline?inlineId=modal-change-status&width=500&height=350');
+            });
+            
             // Media Library para modal galería
             $('#select-modal-gallery').on('click', function(e) {
                 e.preventDefault();
@@ -423,7 +516,7 @@ class MediaLab_Pending_Material {
                     success: function(response) {
                         if (response.success) {
                             tb_remove();
-                            alert('✅ ' + response.data.message + '\nNuevo estado: ' + response.data.nuevo_estado);
+                            alert('✅ ' + response.data.message);
                             location.reload();
                         } else {
                             alert('❌ Error: ' + response.data);
@@ -448,9 +541,10 @@ class MediaLab_Pending_Material {
                     success: function(response) {
                         if (response.success) {
                             tb_remove();
+                            alert('✅ Video agregado correctamente');
                             location.reload();
                         } else {
-                            alert('Error: ' + response.data);
+                            alert('❌ Error: ' + response.data);
                         }
                     }
                 });
@@ -465,6 +559,9 @@ class MediaLab_Pending_Material {
                     return;
                 }
                 
+                var $submitBtn = $(this).find('[type="submit"]');
+                $submitBtn.prop('disabled', true).val('Guardando...');
+                
                 $.ajax({
                     url: ajaxurl,
                     type: 'POST',
@@ -477,9 +574,54 @@ class MediaLab_Pending_Material {
                     success: function(response) {
                         if (response.success) {
                             tb_remove();
+                            var message = '✅ ' + response.data.message;
+                            if (response.data.new_status === 'completo') {
+                                message += '\n🎉 ¡La graduación está ahora completa!';
+                            }
+                            alert(message);
                             location.reload();
                         } else {
-                            alert('Error: ' + response.data);
+                            alert('❌ Error: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        alert('❌ Error de conexión');
+                    },
+                    complete: function() {
+                        $submitBtn.prop('disabled', false).val('Guardar Fotos');
+                    }
+                });
+            });
+            
+            // NUEVO: Submit cambiar estado manual
+            $('#form-change-status').on('submit', function(e) {
+                e.preventDefault();
+                
+                var newStatus = $('#new-status').val();
+                var disableAutoDetect = $('#disable-auto-detect').is(':checked');
+                
+                if (!newStatus) {
+                    alert('Selecciona un estado');
+                    return;
+                }
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'medialab_update_status_manual',
+                        post_id: currentPostId,
+                        new_status: newStatus,
+                        disable_auto_detect: disableAutoDetect ? '1' : '0',
+                        nonce: '<?php echo wp_create_nonce('medialab_nonce'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            tb_remove();
+                            alert('✅ Estado actualizado correctamente');
+                            location.reload();
+                        } else {
+                            alert('❌ Error: ' + response.data);
                         }
                     }
                 });
@@ -561,7 +703,7 @@ class MediaLab_Pending_Material {
             update_field('responsable_fotos', $responsable_fotos, $post_id);
         }
         
-        wp_send_json_success('Responsable asignado correctamente');
+        wp_send_json_success(array('message' => 'Responsable asignado correctamente'));
     }
     
     public function handle_complete_video() {
@@ -579,10 +721,10 @@ class MediaLab_Pending_Material {
         // Guardar video
         update_field('link', $video_link, $post_id);
         
-        // Recalcular estado automáticamente (se ejecuta por hook acf/save_post)
-        do_action('acf/save_post', $post_id);
+        // MEJORA: Forzar actualización del estado después de agregar video
+        $this->force_update_material_status($post_id);
         
-        wp_send_json_success('Video agregado correctamente');
+        wp_send_json_success(array('message' => 'Video agregado correctamente'));
     }
     
     public function handle_complete_gallery() {
@@ -621,10 +763,86 @@ class MediaLab_Pending_Material {
             ));
         }
         
-        // Recalcular estado automáticamente
-        do_action('acf/save_post', $post_id);
+        // MEJORA: Forzar actualización del estado después de agregar galería
+        $this->force_update_material_status($post_id);
         
-        wp_send_json_success('Galería agregada correctamente');
+        wp_send_json_success(array('message' => 'Galería agregada correctamente'));
+    }
+    
+    // NUEVO: Handler para actualización manual de estado
+    public function handle_update_status_manual() {
+        if (!wp_verify_nonce($_POST['nonce'], 'medialab_nonce')) {
+            wp_send_json_error('Fallo de seguridad');
+        }
+        
+        $post_id = intval($_POST['post_id']);
+        $new_status = sanitize_text_field($_POST['new_status']);
+        $disable_auto_detect = $_POST['disable_auto_detect'] === '1';
+        
+        // Validar estado
+        $valid_statuses = array('completo', 'solo_video', 'solo_fotos', 'pendiente_todo');
+        if (!in_array($new_status, $valid_statuses)) {
+            wp_send_json_error('Estado inválido');
+        }
+        
+        // Actualizar estado
+        update_field('estado_material', $new_status, $post_id);
+        
+        // Actualizar configuración de detección automática
+        update_field('auto_detect_status', !$disable_auto_detect, $post_id);
+        
+        $message = 'Estado actualizado correctamente';
+        if ($disable_auto_detect) {
+            $message .= ' (detección automática desactivada)';
+        }
+        
+        wp_send_json_success(array('message' => $message));
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Forzar actualización de estado
+     */
+    private function force_update_material_status($post_id) {
+        // Verificar si existe la función en graduation-post.php
+        $graduation_class = new MediaLab_Graduation_Post();
+        if (method_exists($graduation_class, 'force_update_material_status')) {
+            return $graduation_class->force_update_material_status($post_id);
+        }
+        
+        // Fallback: actualizar manualmente
+        $tiene_video = !empty(get_field('link', $post_id));
+        $gallery_images = get_field('gallery_images', $post_id);
+        
+        $tiene_fotos = false;
+        if (!empty($gallery_images)) {
+            if (is_string($gallery_images)) {
+                $decoded = json_decode($gallery_images, true);
+                $tiene_fotos = !empty($decoded) && is_array($decoded) && count($decoded) > 0;
+            } else if (is_array($gallery_images)) {
+                $tiene_fotos = count($gallery_images) > 0;
+            }
+        }
+        
+        // También verificar contenido del post
+        if (!$tiene_fotos) {
+            $post_content = get_post_field('post_content', $post_id);
+            $tiene_fotos = strpos($post_content, 'wp:gallery') !== false || strpos($post_content, 'wp-block-gallery') !== false;
+        }
+        
+        // Determinar estado
+        if ($tiene_video && $tiene_fotos) {
+            $estado = 'completo';
+        } elseif ($tiene_video && !$tiene_fotos) {
+            $estado = 'solo_video';
+        } elseif (!$tiene_video && $tiene_fotos) {
+            $estado = 'solo_fotos';
+        } else {
+            $estado = 'pendiente_todo';
+        }
+        
+        update_field('estado_material', $estado, $post_id);
+        
+        return $estado;
     }
     
     private function create_gallery_block($image_ids) {
