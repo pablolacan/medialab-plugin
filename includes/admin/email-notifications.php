@@ -1,6 +1,6 @@
 <?php
 /**
- * MediaLab - Email Notifications Module
+ * MediaLab - Email Notifications Module (CORREGIDO Y PULIDO)
  * Sistema de notificaciones por email para graduaciones y asignaciones
  */
 
@@ -15,6 +15,9 @@ class MediaLab_Email_Notifications {
         add_action('init', array($this, 'init'));
         add_action('admin_menu', array($this, 'add_settings_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+        
+        // AJAX para prueba de email
+        add_action('wp_ajax_medialab_test_email', array($this, 'handle_test_email'));
     }
     
     public function init() {
@@ -23,6 +26,11 @@ class MediaLab_Email_Notifications {
         
         // Hook para enviar email cuando se publica graduación con material pendiente
         add_action('medialab_graduation_published_pending', array($this, 'send_graduation_pending_notification'), 10, 2);
+        
+        // DEBUG: Log cuando se registran los hooks
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('MediaLab Email: Hooks registrados');
+        }
     }
     
     public function add_settings_menu() {
@@ -122,6 +130,16 @@ class MediaLab_Email_Notifications {
                     <div id="test-email-result" style="margin-top: 10px;"></div>
                 </div>
             </div>
+            
+            <!-- NUEVO: Debug de configuración -->
+            <div class="postbox" style="margin-top: 20px;">
+                <div class="postbox-header">
+                    <h2>🔍 Estado del Sistema</h2>
+                </div>
+                <div class="inside">
+                    <?php $this->show_system_status(); ?>
+                </div>
+            </div>
         </div>
         
         <script>
@@ -158,6 +176,24 @@ class MediaLab_Email_Notifications {
         });
         </script>
         <?php
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Mostrar estado del sistema
+     */
+    private function show_system_status() {
+        $enabled = get_option('medialab_email_enabled', 0);
+        $supervisors = get_option('medialab_email_supervisors', '');
+        $from_name = get_option('medialab_email_from_name', '');
+        $from_email = get_option('medialab_email_from_email', '');
+        
+        echo '<table class="form-table">';
+        echo '<tr><th>Estado de Notificaciones</th><td>' . ($enabled ? '✅ Activadas' : '❌ Desactivadas') . '</td></tr>';
+        echo '<tr><th>Post SMTP</th><td>' . (is_plugin_active('post-smtp/postman-smtp.php') ? '✅ Activo' : '❌ Inactivo') . '</td></tr>';
+        echo '<tr><th>Email del Remitente</th><td>' . (!empty($from_email) ? '✅ ' . esc_html($from_email) : '❌ No configurado') . '</td></tr>';
+        echo '<tr><th>Nombre del Remitente</th><td>' . (!empty($from_name) ? '✅ ' . esc_html($from_name) : '❌ No configurado') . '</td></tr>';
+        echo '<tr><th>Supervisores</th><td>' . (!empty($supervisors) ? '✅ Configurados' : '⚠️ No configurados') . '</td></tr>';
+        echo '</table>';
     }
     
     public function section_callback() {
@@ -203,10 +239,18 @@ class MediaLab_Email_Notifications {
     }
     
     /**
-     * Enviar notificación cuando se asigna responsable
+     * Enviar notificación cuando se asigna responsable (CORREGIDO)
      */
     public function send_assignment_notification($post_id, $user_id, $tipo) {
+        // DEBUG
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("MediaLab Email: send_assignment_notification llamada - Post: $post_id, Usuario: $user_id, Tipo: $tipo");
+        }
+        
         if (!$this->is_enabled()) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("MediaLab Email: Notificaciones deshabilitadas");
+            }
             return;
         }
         
@@ -214,23 +258,43 @@ class MediaLab_Email_Notifications {
         $user = get_userdata($user_id);
         
         if (!$post || !$user) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("MediaLab Email: Post o Usuario no válido - Post existe: " . ($post ? 'SI' : 'NO') . ", Usuario existe: " . ($user ? 'SI' : 'NO'));
+            }
             return;
         }
         
-        $facultad = get_field('facultad', $post_id);
+        // Verificar que sea una graduación
+        if (!has_category('graduaciones', $post_id)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("MediaLab Email: Post no es una graduación");
+            }
+            return;
+        }
+        
+        $facultad = get_field('facultad', $post_id) ?: 'Sin especificar';
         $post_date = get_the_date('d/m/Y', $post_id);
         $tipo_texto = ($tipo === 'video') ? 'video' : 'fotografías';
         
         // Datos del email
         $subject = "📋 Asignación de {$tipo_texto} - {$post->post_title}";
-        
         $message = $this->get_assignment_email_template($post, $user, $tipo, $facultad, $post_date);
         
+        // DEBUG
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("MediaLab Email: Enviando a " . $user->user_email);
+        }
+        
         // Enviar al usuario asignado
-        $this->send_email($user->user_email, $subject, $message);
+        $sent_to_user = $this->send_email($user->user_email, $subject, $message);
         
         // Enviar copia a supervisores
-        $this->send_copy_to_supervisors($subject, $message, $user->display_name);
+        $sent_to_supervisors = $this->send_copy_to_supervisors($subject, $message, $user->display_name);
+        
+        // DEBUG
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("MediaLab Email: Enviado a usuario: " . ($sent_to_user ? 'SI' : 'NO') . ", Enviado a supervisores: " . ($sent_to_supervisors ? 'SI' : 'NO'));
+        }
     }
     
     /**
@@ -247,7 +311,11 @@ class MediaLab_Email_Notifications {
         }
         
         $post = get_post($post_id);
-        $facultad = get_field('facultad', $post_id);
+        if (!$post) {
+            return;
+        }
+        
+        $facultad = get_field('facultad', $post_id) ?: 'Sin especificar';
         $post_date = get_the_date('d/m/Y', $post_id);
         
         $subject = "🎓 Nueva Graduación Publicada - Material Pendiente";
@@ -258,7 +326,7 @@ class MediaLab_Email_Notifications {
     }
     
     /**
-     * Template para email de asignación
+     * Template para email de asignación (MEJORADO)
      */
     private function get_assignment_email_template($post, $user, $tipo, $facultad, $post_date) {
         $tipo_texto = ($tipo === 'video') ? 'video' : 'fotografías';
@@ -311,7 +379,7 @@ class MediaLab_Email_Notifications {
                     </div>
                     
                     <p><strong>Descripción del evento:</strong></p>
-                    <p><em>{$post->post_excerpt}</em></p>
+                    <p><em>" . esc_html($post->post_excerpt) . "</em></p>
                     
                     <hr>
                     <p><small>Si tienes alguna pregunta o necesitas ayuda, contacta al equipo de MediaLab.</small></p>
@@ -382,7 +450,7 @@ class MediaLab_Email_Notifications {
                     </div>
                     
                     <p><strong>Descripción del evento:</strong></p>
-                    <p><em>{$post->post_excerpt}</em></p>
+                    <p><em>" . esc_html($post->post_excerpt) . "</em></p>
                     
                     <p><a href='" . admin_url('admin.php?page=medialab-pending') . "' class='button'>🔗 Gestionar Material Pendiente</a></p>
                     
@@ -402,7 +470,7 @@ class MediaLab_Email_Notifications {
     }
     
     /**
-     * Enviar email usando wp_mail (compatible con Post SMTP)
+     * Enviar email usando wp_mail (MEJORADO con debug)
      */
     private function send_email($to, $subject, $message) {
         $from_name = get_option('medialab_email_from_name', 'MediaLab - Universidad Galileo');
@@ -413,7 +481,19 @@ class MediaLab_Email_Notifications {
             'From: ' . $from_name . ' <' . $from_email . '>'
         );
         
+        // DEBUG antes de enviar
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("MediaLab Email: Intentando enviar email a: $to");
+            error_log("MediaLab Email: Asunto: $subject");
+            error_log("MediaLab Email: Remitente: $from_name <$from_email>");
+        }
+        
         $sent = wp_mail($to, $subject, $message, $headers);
+        
+        // DEBUG después de enviar
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("MediaLab Email: Resultado wp_mail: " . ($sent ? 'ÉXITO' : 'FALLÓ'));
+        }
         
         if (!$sent) {
             error_log('MediaLab Email Error: No se pudo enviar email a ' . $to);
@@ -423,20 +503,26 @@ class MediaLab_Email_Notifications {
     }
     
     /**
-     * Enviar copia a supervisores
+     * Enviar copia a supervisores (MEJORADO)
      */
     private function send_copy_to_supervisors($subject, $message, $assigned_to = '') {
         $supervisors = get_option('medialab_email_supervisors', '');
         
         if (empty($supervisors)) {
-            return;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("MediaLab Email: No hay supervisores configurados");
+            }
+            return false;
         }
         
         $supervisor_emails = array_map('trim', explode(',', $supervisors));
         $supervisor_emails = array_filter($supervisor_emails, 'is_email');
         
         if (empty($supervisor_emails)) {
-            return;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("MediaLab Email: Emails de supervisores no válidos");
+            }
+            return false;
         }
         
         // Modificar asunto para supervisores
@@ -452,9 +538,15 @@ class MediaLab_Email_Notifications {
             $message = str_replace('<div class=\'content\'>', '<div class=\'content\'>' . $supervisor_note, $message);
         }
         
+        $all_sent = true;
         foreach ($supervisor_emails as $email) {
-            $this->send_email($email, $supervisor_subject, $message);
+            $sent = $this->send_email($email, $supervisor_subject, $message);
+            if (!$sent) {
+                $all_sent = false;
+            }
         }
+        
+        return $all_sent;
     }
     
     /**
@@ -465,7 +557,7 @@ class MediaLab_Email_Notifications {
     }
     
     /**
-     * Handler para prueba de email
+     * Handler para prueba de email (MEJORADO)
      */
     public function handle_test_email() {
         if (!wp_verify_nonce($_POST['nonce'], 'medialab_email_test')) {
@@ -483,6 +575,7 @@ class MediaLab_Email_Notifications {
         <p>Si recibes este email, la configuración de MediaLab está funcionando correctamente.</p>
         <p><strong>Fecha/Hora:</strong> " . current_time('d/m/Y H:i:s') . "</p>
         <p><strong>Configuración Post SMTP:</strong> " . (is_plugin_active('post-smtp/postman-smtp.php') ? 'Activado ✅' : 'No activado ❌') . "</p>
+        <p><strong>Notificaciones MediaLab:</strong> " . ($this->is_enabled() ? 'Activadas ✅' : 'Desactivadas ❌') . "</p>
         ";
         
         $sent = $this->send_email($test_email, $subject, $message);
@@ -497,6 +590,3 @@ class MediaLab_Email_Notifications {
 
 // Inicializar la clase
 $medialab_email = new MediaLab_Email_Notifications();
-
-// Registrar handler AJAX para prueba de email
-add_action('wp_ajax_medialab_test_email', array($medialab_email, 'handle_test_email'));

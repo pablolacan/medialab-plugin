@@ -695,15 +695,33 @@ class MediaLab_Pending_Material {
         $responsable_video = intval($_POST['responsable_video']);
         $responsable_fotos = intval($_POST['responsable_fotos']);
         
+        $messages = array();
+        
+        // Asignar responsable de video
         if ($responsable_video > 0) {
             update_field('responsable_video', $responsable_video, $post_id);
+            
+            // NUEVO: Disparar hook para notificación de video
+            do_action('medialab_responsable_assigned', $post_id, $responsable_video, 'video');
+            $messages[] = 'Responsable de video asignado';
         }
         
+        // Asignar responsable de fotos
         if ($responsable_fotos > 0) {
             update_field('responsable_fotos', $responsable_fotos, $post_id);
+            
+            // NUEVO: Disparar hook para notificación de fotos
+            do_action('medialab_responsable_assigned', $post_id, $responsable_fotos, 'fotos');
+            $messages[] = 'Responsable de fotos asignado';
         }
         
-        wp_send_json_success(array('message' => 'Responsable asignado correctamente'));
+        // Mensaje final
+        $final_message = implode(' y ', $messages);
+        if (empty($final_message)) {
+            $final_message = 'No se realizaron cambios';
+        }
+        
+        wp_send_json_success(array('message' => $final_message . ' correctamente'));
     }
     
     public function handle_complete_video() {
